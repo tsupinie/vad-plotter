@@ -43,14 +43,14 @@ def compute_parameters(data, storm_motion):
     sr_u = u - storm_u
     sr_v = v - storm_v
 
-    sru_0_1km = clip_profile(sr_u, data['altitude'], 1, u_1km) / 1.94
-    srv_0_1km = clip_profile(sr_v, data['altitude'], 1, v_1km) / 1.94
+    sru_0_1km = clip_profile(sr_u, data['altitude'], 1, u_1km - storm_u) / 1.94
+    srv_0_1km = clip_profile(sr_v, data['altitude'], 1, v_1km - storm_v) / 1.94
 
     layers = (sru_0_1km[1:] * srv_0_1km[:-1]) - (sru_0_1km[:-1] * srv_0_1km[1:])
     params['srh_1km'] = layers.sum()
 
-    sru_0_3km = clip_profile(sr_u, data['altitude'], 3, u_3km) / 1.94
-    srv_0_3km = clip_profile(sr_v, data['altitude'], 3, v_3km) / 1.94
+    sru_0_3km = clip_profile(sr_u, data['altitude'], 3, u_3km - storm_u) / 1.94
+    srv_0_3km = clip_profile(sr_v, data['altitude'], 3, v_3km - storm_v) / 1.94
 
     layers = (sru_0_3km[1:] * srv_0_3km[:-1]) - (sru_0_3km[:-1] * srv_0_3km[1:])
     params['srh_3km'] = layers.sum()

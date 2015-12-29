@@ -212,10 +212,15 @@ class VADFile(object):
         for key, val in data.iteritems():
             data[key] = np.array(val)
 
+
         data['slant_range'] *= 6067.1 / 3281.
 
         r_e = 4. / 3. * 6371
         data['altitude'] = np.sqrt(r_e ** 2 + data['slant_range'] ** 2 + 2 * r_e * data['slant_range'] * np.sin(np.radians(data['elev_angle']))) - r_e
+
+        order = np.argsort(data['altitude'])
+        for key, val in data.iteritems():
+            data[key] = val[order]
         return data
 
     def __getitem__(self, key):
