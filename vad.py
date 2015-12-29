@@ -5,6 +5,7 @@ import numpy as np
 import sys
 
 from vad_reader import download_vad
+from params import compute_parameters
 
 import matplotlib
 matplotlib.use('agg')
@@ -20,67 +21,11 @@ Completed:  May 2012
 Modified:   26 April 2015
                 Fixed SRH calculations.
 Usage:
-            plot_vad.py RADAR_ID STORM_MOTION [ RADAR_ID STORM_MOTION ... ]
+            vad.py RADAR_ID STORM_MOTION [ RADAR_ID STORM_MOTION ... ]
 
 RADAR_ID is the 4-character identifier for the radar (e.g. KTLX, KFWS, etc.). 
 STORM_MOTION takes the form DDD/SS, where DDD is the direction the storm is coming from, and SS is the speed in knots (e.g. 240/25)."
 """
-
-def compute_parameters(wind_dir, wind_spd, altitude, storm_dir, storm_spd):
-    def compute_shear(u1, v1, u2, v2):
-        return u2 - u1, v2 - v1
-
-    def clip_profile(prof, alt, clip_alt, intrp_prof):
-        try:
-            idx_clip = np.where((altitude[:-1] <= clip_alt) & (altitude[1:] > clip_alt))[0][0]
-        except IndexError:
-            return np.nan * np.ones(prof.size)
-
-        prof_clip = prof[:(idx_clip + 1)]
-        prof_clip = np.append(prof_clip, intrp_prof)
-
-        return np.array(prof_clip)
-
-    params = {}
-
-    wind_dir = np.pi * wind_dir / 180
-    storm_dir = np.pi * storm_dir / 180    
-
-    u = -wind_spd * np.sin(wind_dir)
-    v = -wind_spd * np.cos(wind_dir)
-
-    storm_u = -storm_spd * np.sin(storm_dir)
-    storm_v = -storm_spd * np.cos(storm_dir)
-
-    u_1km, u_3km, u_6km = np.interp([ 1., 3., 6. ], altitude, u, left=np.nan, right=np.nan)
-    v_1km, v_3km, v_6km = np.interp([ 1., 3., 6. ], altitude, v, left=np.nan, right=np.nan)
-
-    u_shear_1km, v_shear_1km = compute_shear(u[0], v[0], u_1km, v_1km)
-    u_shear_3km, v_shear_3km = compute_shear(u[0], v[0], u_3km, v_3km)
-    u_shear_6km, v_shear_6km = compute_shear(u[0], v[0], u_6km, v_6km)
-
-    params['shear_mag_1km'] = np.hypot(u_shear_1km, v_shear_1km)
-    params['shear_mag_3km'] = np.hypot(u_shear_3km, v_shear_3km)
-    params['shear_mag_6km'] = np.hypot(u_shear_6km, v_shear_6km)
-
-    sr_u = u - storm_u
-    sr_v = v - storm_v
-
-    sru_0_1km = clip_profile(sr_u, altitude, 1, u_1km) / 1.94
-    srv_0_1km = clip_profile(sr_v, altitude, 1, v_1km) / 1.94
-    alt_0_1km = clip_profile(altitude, altitude, 1, lambda x: x)
-
-    layers = (sru_0_1km[1:] * srv_0_1km[:-1]) - (sru_0_1km[:-1] * srv_0_1km[1:])
-    params['srh_1km'] = layers.sum()
-
-    sru_0_3km = clip_profile(sr_u, altitude, 3, u_3km) / 1.94
-    srv_0_3km = clip_profile(sr_v, altitude, 3, v_3km) / 1.94
-    alt_0_3km = clip_profile(altitude, altitude, 3, lambda x: x)
-
-    layers = (sru_0_3km[1:] * srv_0_3km[:-1]) - (sru_0_3km[:-1] * srv_0_3km[1:])
-    params['srh_3km'] = layers.sum()
-
-    return params
 
 def plot_hodograph(wind_dir, wind_spd, altitude, rms_error, img_title, img_file_name, parameters={}, storm_motion=()):
     param_names = {
@@ -183,7 +128,7 @@ def plot_hodograph(wind_dir, wind_spd, altitude, rms_error, img_title, img_file_
 def main():
     usage = """
 Usage:
-            plot_vad.py RADAR_ID STORM_MOTION [ RADAR_ID STORM_MOTION ... ]
+            vad.py RADAR_ID STORM_MOTION [ RADAR_ID STORM_MOTION ... ]
 
 RADAR_ID is the 4-character identifier for the radar (e.g. KTLX, KFWS, etc.). 
 STORM_MOTION takes the form DDD/SS, where DDD is the direction the storm is coming from, and SS is the speed in knots (e.g. 240/25)."
@@ -206,7 +151,7 @@ STORM_MOTION takes the form DDD/SS, where DDD is the direction the storm is comi
     for rid, sd, ss in zip(radar_ids, storm_dir, storm_spd):
         print "Plotting VAD for %s ..." % rid
         vad = download_vad(rid)
-        params = compute_parameters(vad['wind_dir'], vad['wind_spd'], vad['altitude'], sd, ss)
+        params = compute_parameters(vad, (sd, ss))
 
         plot_hodograph(vad['wind_dir'], vad['wind_spd'], vad['altitude'], vad['rms_error'], "%s VWP valid %s" % (rid, vad._time.strftime("%d %b %Y %H%M UTC")), "%s_vad.png" % rid, parameters=params, storm_motion=(sd, ss))
 
