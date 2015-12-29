@@ -8,7 +8,7 @@ The script downloads the VAD data from the NEXRAD Radar Product Dissemination pa
 python vad.py RADAR_ID STORM_MOTION [RADAR_ID STORM_MOTION ...]
 ```
 * `RADAR_ID` is a 4-character radar identifier (e.g. KTLX, KFWS)
-* `STORM_MOTION` is the storm motion vector. It takes the form `DDD/SS`, where `DDD` is the direction the storm is coming from in degrees, and `SS` is the storm speed in knots.
+* `STORM_MOTION` is the storm motion vector. It takes the form `DDD/SS`, where `DDD` is the direction the storm is coming from in degrees, and `SS` is the storm speed in knots. An example might be 240/35 (from the WSW at 35 kts).
 
 This will produce an image file called `<RADAR_ID>_vad.png` in the current directory.
 
