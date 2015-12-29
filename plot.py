@@ -4,15 +4,15 @@ import numpy as np
 import matplotlib
 matplotlib.use('agg')
 import pylab
-#from matplotlib.lines import Line2D
-#from matplotlib.transforms import Bbox
-#from matplotlib.transforms import TransformedBbox
 from matplotlib.patches import Circle
+from matplotlib.lines import Line2D
 
 _seg_hghts = [0, 3, 6, 9, 12, 18]
 _seg_colors = ['r', '#00ff00', '#008800', '#993399', 'c']
 
-def _plot_param_table(parameters):
+
+def _plot_param_table(parameters, storm_motion):
+    storm_dir, storm_spd = storm_motion
     trans = pylab.gca().transAxes
     line_space = 0.028
     start_x = 1.02
@@ -22,9 +22,11 @@ def _plot_param_table(parameters):
 
     kwargs = {'color':'k', 'fontsize':10, 'clip_on':False, 'transform':trans}
 
-    pylab.text(start_x + 0.18, start_y, "Parameter Table", ha='center', fontweight='bold', **kwargs)
+    pylab.text(start_x + 0.175, start_y, "Parameter Table", ha='center', fontweight='bold', **kwargs)
 
-    line_y -= line_space
+    spacer = Line2D([start_x, start_x + 0.361], [line_y - line_space * 0.48] * 2, color='k', linestyle='-', transform=trans, clip_on=False)
+    pylab.gca().add_line(spacer)
+    line_y -= line_space * 1.5
 
     pylab.text(start_x + 0.095, line_y,          "BWD (kts)", fontweight='bold', **kwargs)
     pylab.text(start_x + 0.22,  line_y - 0.0011, "SRH (m$^2$s$^{-2}$)", fontweight='bold', **kwargs)
@@ -32,24 +34,37 @@ def _plot_param_table(parameters):
     line_y -= line_space
 
     pylab.text(start_x, line_y, "0-1 km", fontweight='bold', **kwargs)
-    pylab.text(start_x + 0.095, line_y, "%d" % int(parameters['shear_mag_1km']), **kwargs)
-    pylab.text(start_x + 0.22,  line_y, "%d" % int(parameters['srh_1km']), **kwargs)
+    val = "--" if np.isnan(parameters['shear_mag_1km']) else "%d" % int(parameters['shear_mag_1km'])
+    pylab.text(start_x + 0.095, line_y, val, **kwargs)
+    val = "--" if np.isnan(parameters['srh_1km']) else "%d" % int(parameters['srh_1km'])
+    pylab.text(start_x + 0.22,  line_y, val, **kwargs)
 
     line_y -= line_space
 
     pylab.text(start_x, line_y, "0-3 km", fontweight='bold', **kwargs)
-    pylab.text(start_x + 0.095, line_y, "%d" % int(parameters['shear_mag_3km']), **kwargs)
-    pylab.text(start_x + 0.22,  line_y, "%d" % int(parameters['srh_3km']), **kwargs)
+    val = "--" if np.isnan(parameters['shear_mag_3km']) else "%d" % int(parameters['shear_mag_3km'])
+    pylab.text(start_x + 0.095, line_y, val, **kwargs)
+    val = "--" if np.isnan(parameters['srh_3km']) else "%d" % int(parameters['srh_3km'])
+    pylab.text(start_x + 0.22,  line_y, val, **kwargs)
 
     line_y -= line_space
 
     pylab.text(start_x, line_y, "0-6 km", fontweight='bold', **kwargs)
-    pylab.text(start_x + 0.095, line_y, "%d" % int(parameters['shear_mag_6km']), **kwargs)
+    val = "--" if np.isnan(parameters['shear_mag_6km']) else "%d" % int(parameters['shear_mag_6km'])
+    pylab.text(start_x + 0.095, line_y, val, **kwargs)
 
+    spacer = Line2D([start_x, start_x + 0.361], [line_y - line_space * 0.48] * 2, color='k', linestyle='-', transform=trans, clip_on=False)
+    pylab.gca().add_line(spacer)
     line_y -= 1.5 * line_space
 
+    pylab.text(start_x, line_y, "Storm Motion:", fontweight='bold', **kwargs)
+    pylab.text(start_x + 0.18, line_y, "%03d/%02d kts" % (storm_dir, storm_spd), **kwargs)
+
+    line_y -= line_space
+
     pylab.text(start_x, line_y, "Critical Angle:", fontweight='bold', **kwargs)
-    pylab.text(start_x + 0.18, line_y, "%d$^{\circ}$" % int(parameters['critical']), **kwargs)
+    pylab.text(start_x + 0.18, line_y - 0.0011, "%d$^{\circ}$" % int(parameters['critical']), **kwargs)
+
 
 def _plot_data(data, storm_motion):
     storm_dir, storm_spd = storm_motion
@@ -100,6 +115,7 @@ def _plot_background(max_ring):
 
         pylab.text(irng + 0.5, -0.5, "%d" % irng, ha='left', va='top', fontsize=9, color='#999999', clip_on=True, clip_box=pylab.gca().get_clip_box())
 
+
 def plot_hodograph(data, parameters, storm_motion):
     img_title = "%s VWP valid %s" % (data.rid, data['time'].strftime("%d %b %Y %H%M UTC"))
     img_file_name = "%s_vad.png" % data.rid
@@ -117,7 +133,7 @@ def plot_hodograph(data, parameters, storm_motion):
 
     _plot_background(int(np.ceil(max_u * np.sqrt(2))))
     _plot_data(data, storm_motion)
-    _plot_param_table(parameters)
+    _plot_param_table(parameters, storm_motion)
 
     pylab.xlim(-max_u / 2, max_u)
     pylab.ylim(-max_u / 2, max_u)
