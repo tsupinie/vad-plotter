@@ -221,7 +221,13 @@ class VADFile(object):
     def __getitem__(self, key):
         if self._data is None:
             self._data = self._get_data()
-        return self._data[key]
+
+        if key == 'time':
+            val = self._time
+        else:
+            val = self._data[key]
+
+        return val
 
 def download_vad(rid):
     url = "ftp://tgftp.nws.noaa.gov/SL.us008001/DF.of/DC.radar/DS.48vwp/SI.%s/sn.last" % rid.lower()
@@ -229,5 +235,7 @@ def download_vad(rid):
         vad = VADFile(urllib2.urlopen(url))
     except urllib2.URLError:
         raise ValueError("Could not find radar site '%s'" % rid.upper())
+
+    vad.rid = rid
 
     return vad
