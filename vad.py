@@ -45,6 +45,7 @@ def main():
     smv = parse_vector(args.storm_motion)
     print "Plotting VAD for %s ..." % args.radar_id
     vad = download_vad(args.radar_id)
+    print "Valid time:", vad['time'].strftime("%d %B %Y %H%M:%S UTC")
 
     if args.sfc_wind:
         sfc_wind = parse_vector(args.sfc_wind)

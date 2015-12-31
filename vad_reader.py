@@ -76,7 +76,6 @@ class VADFile(object):
         offset_tabular   = self._read('i')
 
         self._time = datetime(1969, 12, 31, 0, 0, 0) + timedelta(days=scan_date, seconds=scan_time)
-        print "Valid time:", self._time
 
         return offset_symbology > 0, offset_graphic > 0, offset_tabular > 0
 
