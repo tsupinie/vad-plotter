@@ -17,6 +17,6 @@ This will produce an image file called `<RADAR_ID>_vad.png` in the current direc
 NumPy and Matplotlib are the only requirements to run this script.
 
 ## Notes
-When computing the parameters, the "surface" is taken to be the lowest data point in the VAD retrieval, which is often ~100 m AGL.
+When computing the parameters, in the absence of a specified surface wind, the "surface" is taken to be the lowest data point in the VAD retrieval, which is often ~100 m AGL.
 
 The colored circles are proportional in radius to the RMS error in the VAD retrieval at each level.
