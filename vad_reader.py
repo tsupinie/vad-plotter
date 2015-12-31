@@ -260,6 +260,8 @@ def find_file_times(rid):
 
         file_dts.append(ft_dt)
 
+    # The files are only moved into place when the next one is generated, so shift the
+    # file names by one index to account for that.
     file_names[:-1] = file_names[1:]
     file_names[-1] = 'sn.last'
 
