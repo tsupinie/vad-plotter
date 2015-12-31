@@ -63,7 +63,8 @@ def _plot_param_table(parameters, storm_motion):
     line_y -= line_space
 
     pylab.text(start_x, line_y, "Critical Angle:", fontweight='bold', **kwargs)
-    pylab.text(start_x + 0.18, line_y - 0.0025, "%d$^{\circ}$" % int(parameters['critical']), **kwargs)
+    val = "--" if np.isnan(parameters['critical']) else "%d$^{\circ}$" % int(parameters['critical'])
+    pylab.text(start_x + 0.18, line_y - 0.0025, val, **kwargs)
 
 
 def _plot_data(data, storm_motion):
