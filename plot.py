@@ -29,7 +29,7 @@ def _plot_param_table(parameters, storm_motion):
     line_y -= line_space * 1.5
 
     pylab.text(start_x + 0.095, line_y,          "BWD (kts)", fontweight='bold', **kwargs)
-    pylab.text(start_x + 0.22,  line_y - 0.0011, "SRH (m$^2$s$^{-2}$)", fontweight='bold', **kwargs)
+    pylab.text(start_x + 0.22,  line_y - 0.0025, "SRH (m$^2$s$^{-2}$)", fontweight='bold', **kwargs)
 
     line_y -= line_space
 
@@ -63,7 +63,7 @@ def _plot_param_table(parameters, storm_motion):
     line_y -= line_space
 
     pylab.text(start_x, line_y, "Critical Angle:", fontweight='bold', **kwargs)
-    pylab.text(start_x + 0.18, line_y - 0.0011, "%d$^{\circ}$" % int(parameters['critical']), **kwargs)
+    pylab.text(start_x + 0.18, line_y - 0.0025, "%d$^{\circ}$" % int(parameters['critical']), **kwargs)
 
 
 def _plot_data(data, storm_motion):
@@ -89,7 +89,12 @@ def _plot_data(data, storm_motion):
         if not np.isnan(seg_u[idx]):
             pylab.plot([seg_u[idx], u[idx_start]], [seg_v[idx], v[idx_start]], '-', color=_seg_colors[idx], linewidth=1.5)
 
-        pylab.plot(u[idx_start:idx_end], v[idx_start:idx_end], '-', color=_seg_colors[idx], linewidth=1.5)
+        if idx_start < len(data['rms_error']) and data['rms_error'][idx_start] == 0.:
+            # The first segment is to the surface wind, draw it in a dashed line
+            pylab.plot(u[idx_start:(idx_start + 2)], v[idx_start:(idx_start + 2)], '--', color=_seg_colors[idx], linewidth=1.5)
+            pylab.plot(u[(idx_start + 1):idx_end], v[(idx_start + 1):idx_end], '-', color=_seg_colors[idx], linewidth=1.5)
+        else:
+            pylab.plot(u[idx_start:idx_end], v[idx_start:idx_end], '-', color=_seg_colors[idx], linewidth=1.5)
 
         if not np.isnan(seg_u[idx + 1]):
             pylab.plot([u[idx_end - 1], seg_u[idx + 1]], [v[idx_end - 1], seg_v[idx + 1]], '-', color=_seg_colors[idx], linewidth=1.5)

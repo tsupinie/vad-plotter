@@ -24,6 +24,8 @@ class VADFile(object):
 
         if has_tabular_block:
             self._read_tabular_block()
+
+        self._data = self._get_data()
         return
 
     def _read_headers(self):
@@ -224,15 +226,20 @@ class VADFile(object):
         return data
 
     def __getitem__(self, key):
-        if self._data is None:
-            self._data = self._get_data()
-
         if key == 'time':
             val = self._time
         else:
             val = self._data[key]
-
         return val
+
+    def add_surface_wind(self, sfc_wind):
+        sfc_dir, sfc_spd = sfc_wind
+
+        keys = ['wind_dir', 'wind_spd', 'rms_error', 'altitude']
+        vals = [float(sfc_dir), float(sfc_spd), 0., 0.01]
+
+        for key, val in zip(keys, vals):
+            self._data[key] = np.append(val, self._data[key])
 
 def download_vad(rid):
     url = "ftp://tgftp.nws.noaa.gov/SL.us008001/DF.of/DC.radar/DS.48vwp/SI.%s/sn.last" % rid.lower()
