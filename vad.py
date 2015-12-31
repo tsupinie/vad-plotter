@@ -10,6 +10,7 @@ from plot import plot_hodograph
 
 import re
 import argparse
+from datetime import datetime, timedelta
 
 """
 plot_vad.py
@@ -38,14 +39,35 @@ def main():
     ap.add_argument('radar_id', help="The 4-character identifier for the radar (e.g. KTLX, KFWS, etc.)")
     ap.add_argument('-m', dest='storm_motion', help="Storm motion vector. It takes the form DDD/SS, where DDD is the direction the storm is coming from, and SS is the speed in knots (e.g. 240/25).", required=True)
     ap.add_argument('-s', dest='sfc_wind', help="Surface wind vector. It takes the form DDD/SS, where DDD is the direction the storm is coming from, and SS is the speed in knots (e.g. 240/25).")
+    ap.add_argument('-t', dest='time', help="Time to plot. Takes the form DD/HHMM, where DD is the day, HH is the hour, and MM is the minute.")
     args = ap.parse_args()
 
     np.seterr(all='ignore')
 
+    plot_time = None
+    if args.time:
+        now = datetime.utcnow()
+        year = now.year
+        month = now.month
+
+        plot_time = datetime.strptime("%d %d %s" % (year, month, args.time), "%Y %m %d/%H%M")
+        if plot_time > now:
+            if month == 1:
+                month = 12
+                year -= 1
+            else:
+                month -= 1
+            plot_time = datetime.strptime("%d %d %s" % (year, month, args.time), "%Y %m %d/%H%M")
+
     smv = parse_vector(args.storm_motion)
     print "Plotting VAD for %s ..." % args.radar_id
-    vad = download_vad(args.radar_id)
-    print "Valid time:", vad['time'].strftime("%d %B %Y %H%M:%S UTC")
+    try:
+        vad = download_vad(args.radar_id, time=plot_time)
+    except ValueError as e:
+        print e
+        sys.exit()
+
+    print "Valid time:", vad['time'].strftime("%d %B %Y %H%M UTC")
 
     if args.sfc_wind:
         sfc_wind = parse_vector(args.sfc_wind)

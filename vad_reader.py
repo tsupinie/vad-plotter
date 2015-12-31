@@ -5,6 +5,9 @@ import struct
 from datetime import datetime, timedelta
 
 import urllib2
+import re
+
+_base_url = "ftp://tgftp.nws.noaa.gov/SL.us008001/DF.of/DC.radar/DS.48vwp/"
 
 class VADFile(object):
     fields = ['wind_dir', 'wind_spd', 'rms_error', 'slant_range', 'elev_angle']
@@ -240,8 +243,45 @@ class VADFile(object):
         for key, val in zip(keys, vals):
             self._data[key] = np.append(val, self._data[key])
 
-def download_vad(rid):
-    url = "ftp://tgftp.nws.noaa.gov/SL.us008001/DF.of/DC.radar/DS.48vwp/SI.%s/sn.last" % rid.lower()
+def find_file_times(rid):
+    url = "%s/SI.%s/" % (_base_url, rid.lower())
+
+    file_text = urllib2.urlopen(url).read()
+    file_list = re.findall("([\w]{3} [\d]{1,2} [\d]{2}:[\d]{2}) (sn.[\d]{4})", file_text)
+    file_times, file_names = zip(*file_list)
+    file_names = list(file_names)
+
+    year = datetime.utcnow().year
+    file_dts = []
+    for ft in file_times:
+        ft_dt = datetime.strptime("%d %s" % (year, ft), "%Y %b %d %H:%M")
+        if ft_dt > datetime.utcnow():
+            ft_dt = datetime.strptime("%d %s" % (year - 1, ft), "%Y %b %d %H:%M")
+
+        file_dts.append(ft_dt)
+
+    file_names[:-1] = file_names[1:]
+    file_names[-1] = 'sn.last'
+
+    file_list = zip(file_names, file_dts)
+    file_list.sort(key=lambda fl: fl[1])
+    return file_list
+
+  
+def download_vad(rid, time=None):
+    if time is None:
+        url = "%s/SI.%s/sn.last" % (_base_url, rid.lower())
+    else:
+        file_name = ""
+        for fn, ft in find_file_times(rid):
+            if ft <= time:
+                file_name = fn
+
+        if file_name == "":
+            raise ValueError("No VAD files before %s." % time.strftime("%d %B %Y %H%M UTC"))
+
+        url = "%s/SI.%s/%s" % (_base_url, rid.lower(), file_name)
+
     try:
         vad = VADFile(urllib2.urlopen(url))
     except urllib2.URLError:
