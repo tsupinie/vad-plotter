@@ -10,7 +10,7 @@ python vad.py RADAR_ID -m STORM_MOTION [ -s SFC_WIND ] [ -t TIME ]
 * `RADAR_ID` is a 4-character radar identifier (e.g. KTLX, KFWS)
 * `STORM_MOTION` is the storm motion vector. It takes the form `DDD/SS`, where `DDD` is the direction the storm is coming from in degrees, and `SS` is the storm speed in knots. An example might be 240/35 (from the WSW at 35 kts).
 * `SFC_WIND` is the surface wind vector. Its form is the same as the storm motion vector.
-* `TIME` is the VAD time to plot. It takes the form DD/HHMM, where DD is the day, HH is the hour, and MM is the minute.
+* `TIME` is the plot time. It takes the form DD/HHMM, where DD is the day, HH is the hour, and MM is the minute. The script will plot the most recent VAD as of this time.
 
 This will produce an image file called `<RADAR_ID>_vad.png` in the current directory.
 
