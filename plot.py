@@ -102,7 +102,7 @@ def _plot_data(data, storm_motion):
 
         for upt, vpt, rms in zip(u, v, data['rms_error'])[idx_start:idx_end]:
             rad = 2 * np.sqrt(np.pi) * rms
-            circ = Circle((upt, vpt), rad, color=_seg_colors[idx], alpha=0.1)
+            circ = Circle((upt, vpt), rad, color=_seg_colors[idx], alpha=0.05)
             pylab.gca().add_patch(circ)
 
     pylab.plot([storm_u, u[0], ca_u], [storm_v, v[0], ca_v], 'c-', linewidth=0.75)
@@ -111,7 +111,8 @@ def _plot_data(data, storm_motion):
     pylab.text(storm_u + 0.5, storm_v - 0.5, "SM: %03d/%02d kts" % (storm_dir, storm_spd), ha='left', va='top', color='k', fontsize=10)
 
 
-def _plot_background(max_ring):
+def _plot_background(max_u):
+    max_ring = int(np.ceil(max_u * np.sqrt(2)))
     pylab.axvline(x=0, linestyle='-', color='#999999')
     pylab.axhline(y=0, linestyle='-', color='#999999')
 
@@ -119,7 +120,9 @@ def _plot_background(max_ring):
         ring = Circle((0., 0.), irng, linestyle='dashed', fc='none', ec='#999999')
         pylab.gca().add_patch(ring)
 
-        pylab.text(irng + 0.5, -0.5, "%d" % irng, ha='left', va='top', fontsize=9, color='#999999', clip_on=True, clip_box=pylab.gca().get_clip_box())
+        rng_str = "%d" % irng if irng != max_u - 10 else "%d kts" % irng
+
+        pylab.text(irng + 0.5, -0.5, rng_str, ha='left', va='top', fontsize=9, color='#999999', clip_on=True, clip_box=pylab.gca().get_clip_box())
 
 
 def plot_hodograph(data, parameters, storm_motion):
@@ -137,7 +140,7 @@ def plot_hodograph(data, parameters, storm_motion):
     axes_wid = axes_hght / fig_aspect
     pylab.axes((axes_left, axes_bot, axes_wid, axes_hght))
 
-    _plot_background(int(np.ceil(max_u * np.sqrt(2))))
+    _plot_background(max_u)
     _plot_data(data, storm_motion)
     _plot_param_table(parameters, storm_motion)
 
