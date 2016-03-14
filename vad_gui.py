@@ -9,33 +9,43 @@ import sys
 class VADWidget(QtGui.QWidget):
     def __init__(self, parent=None):
         super(VADWidget, self).__init__(parent=parent)
+        self._prof = None
+
         self._min_u, self._max_u = -40., 80.
         self._min_v, self._max_v = -40., 80.
         self._drng = 10
 
         self._pix_wid, self._pix_hgt = 500, 500
-        self._mrg_wid, self._mrg_hgt = 10, 10
-        self._hodo_rect = QtCore.QRect(self._mrg_wid, self._mrg_hgt, self._pix_wid - 2 * self._mrg_wid, self._pix_hgt - 2 * self._mrg_hgt)
-
+        self.setMinimumSize(self._pix_wid, self._pix_hgt)
         self._initWidget()
 
+    def setProfile(self, **kwargs):
+        self._prof = kwargs
+
     def _pix2uv(self, pix_x, pix_y):
-        u_pt = self._min_u + (self._max_u - self._min_u) * float(pix_x - self._mrg_wid) / (self._pix_wid - 2 * self._mrg_wid)
-        v_pt = self._max_v - (self._max_v - self._min_v) * float(pix_y - self._mrg_hgt) / (self._pix_hgt - 2 * self._mrg_hgt)
+        u_pt = self._min_u + (self._max_u - self._min_u) * float(pix_x - self._mrg_l) / self._plt_wid
+        v_pt = self._max_v - (self._max_v - self._min_v) * float(pix_y - self._mrg_t) / self._plt_hgt
         return u_pt, v_pt
 
     def _uv2Pix(self, u_pt, v_pt):
-        pix_x = (u_pt - self._min_u) / (self._max_u - self._min_u) * (self._pix_wid - 2 * self._mrg_wid) + self._mrg_wid
-        pix_y = (self._max_v - v_pt) / (self._max_v - self._min_v) * (self._pix_hgt - 2 * self._mrg_hgt) + self._mrg_hgt
+        pix_x = (u_pt - self._min_u) / (self._max_u - self._min_u) * self._plt_wid + self._mrg_l
+        pix_y = (self._max_v - v_pt) / (self._max_v - self._min_v) * self._plt_hgt + self._mrg_t
         return int(round(pix_x)), int(round(pix_y))
 
     def _initWidget(self):
+        self._mrg_t, self._mrg_b = 30, 10
+        self._plt_hgt = self._pix_hgt - (self._mrg_t + self._mrg_b)
+
+        self._mrg_l = 10
+        self._mrg_r = self._pix_wid - self._mrg_l - self._plt_hgt
+        self._plt_wid = self._pix_wid - (self._mrg_l + self._mrg_r)
+
+        self._hodo_rect = QtCore.QRect(self._mrg_l, self._mrg_t, self._plt_wid, self._plt_hgt)
+
         self._background = QtGui.QPixmap(self._pix_wid, self._pix_hgt)
         self._background.fill(QtCore.Qt.white)
         self._drawBackground()
         self._foreground = self._background.copy()
-
-        self.setMinimumSize(self._pix_wid, self._pix_hgt)
 
     def _drawBackground(self):
         max_u = max(abs(self._min_u), abs(self._max_u))
@@ -82,12 +92,21 @@ class VADWidget(QtGui.QWidget):
 
         qp.end()
 
+    def _drawForeground(self):
+        if self._prof is None:
+            return
+
     def paintEvent(self, e):
         super(VADWidget, self).paintEvent(e)
         qp = QtGui.QPainter()
         qp.begin(self)
         qp.drawPixmap(0, 0, self._foreground)
         qp.end()
+
+    def resizeEvent(self, e):
+        self._pix_wid = self.width()
+        self._pix_hgt = self.height()
+        self._initWidget()
 
 class VADGui(QtGui.QMainWindow):
     def __init__(self):
