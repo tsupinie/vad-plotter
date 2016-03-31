@@ -6,6 +6,10 @@ def vec2comp(wdir, wspd):
     v = -wspd * np.cos(np.radians(wdir))
     return u, v
 
+def comp2vec(u, v):
+    vmag = np.hypot(u, v)
+    vdir = 90 - np.degrees(np.arctan2(-v, -u))
+    return vdir, vmag
 
 def interp(u, v, altitude, hght):
     u_hght = np.interp([hght], altitude, u, left=np.nan, right=np.nan)
@@ -44,6 +48,33 @@ def compute_srh(data, storm_motion, hght):
 
     layers = (sru_clip[1:] * srv_clip[:-1]) - (sru_clip[:-1] * srv_clip[1:])
     return layers.sum()
+
+
+def compute_bunkers(data):
+    d = 7.5 * 1.94     # Deviation value emperically derived as 7.5 m/s
+    hght = 6
+                
+    # SFC-6km Mean Wind
+    u, v = vec2comp(data['wind_dir'], data['wind_spd'])
+    u_hght, v_hght = interp(u, v, data['altitude'], hght)
+    u_clip = _clip_profile(u, data['altitude'], hght, u_hght)
+    v_clip = _clip_profile(v, data['altitude'], hght, v_hght)
+
+    mnu6 = u_clip.mean()
+    mnv6 = v_clip.mean()
+
+    # SFC-6km Shear Vector
+    shru = u_hght - u[0]
+    shrv = v_hght - v[0]
+
+    # Bunkers Right Motion
+    tmp = d / np.hypot(shru, shrv)
+    rstu = mnu6 + (tmp * shrv)
+    rstv = mnv6 - (tmp * shru)
+    lstu = mnu6 - (tmp * shrv)
+    lstv = mnv6 + (tmp * shru)
+
+    return comp2vec(rstu, rstv), comp2vec(lstu, lstv)
     
 
 def compute_crit_angl(data, storm_motion):
@@ -64,6 +95,7 @@ def compute_crit_angl(data, storm_motion):
     base_dot_ang = base_u * ang_u + base_v * ang_v
     return np.degrees(np.arccos(base_dot_ang / (len_base * len_ang)))
 
+
 def compute_parameters(data, storm_motion):
     storm_dir, storm_spd = storm_motion
 
@@ -75,6 +107,8 @@ def compute_parameters(data, storm_motion):
 
     for hght in [1, 3]:
         params["srh_%dkm" % hght] = compute_srh(data, storm_motion, hght)
+
+    params['bunkers_right'], params['bunkers_left'] = compute_bunkers(data)
 
     return params
 

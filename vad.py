@@ -74,7 +74,8 @@ def main():
         vad.add_surface_wind(sfc_wind)
 
     params = compute_parameters(vad, smv)
-    plot_hodograph(vad, params, smv)
+    params['storm_motion'] = smv
+    plot_hodograph(vad, params)
 
 if __name__ == "__main__":
     main()
