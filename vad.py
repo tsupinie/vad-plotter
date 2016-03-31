@@ -37,7 +37,7 @@ def parse_vector(vec_str):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('radar_id', help="The 4-character identifier for the radar (e.g. KTLX, KFWS, etc.)")
-    ap.add_argument('-m', dest='storm_motion', help="Storm motion vector. It takes the form DDD/SS, where DDD is the direction the storm is coming from, and SS is the speed in knots (e.g. 240/25).", required=True)
+    ap.add_argument('-m', dest='storm_motion', help="Storm motion vector. It takes the form DDD/SS, where DDD is the direction the storm is coming from, and SS is the speed in knots (e.g. 240/25).", default='right-mover')
     ap.add_argument('-s', dest='sfc_wind', help="Surface wind vector. It takes the form DDD/SS, where DDD is the direction the storm is coming from, and SS is the speed in knots (e.g. 240/25).")
     ap.add_argument('-t', dest='time', help="Time to plot. Takes the form DD/HHMM, where DD is the day, HH is the hour, and MM is the minute.")
     args = ap.parse_args()
@@ -59,7 +59,6 @@ def main():
                 month -= 1
             plot_time = datetime.strptime("%d %d %s" % (year, month, args.time), "%Y %m %d/%H%M")
 
-    smv = parse_vector(args.storm_motion)
     print "Plotting VAD for %s ..." % args.radar_id
     try:
         vad = download_vad(args.radar_id, time=plot_time)
@@ -73,8 +72,7 @@ def main():
         sfc_wind = parse_vector(args.sfc_wind)
         vad.add_surface_wind(sfc_wind)
 
-    params = compute_parameters(vad, smv)
-    params['storm_motion'] = smv
+    params = compute_parameters(vad, args.storm_motion)
     plot_hodograph(vad, params)
 
 if __name__ == "__main__":

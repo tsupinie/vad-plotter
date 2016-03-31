@@ -97,18 +97,23 @@ def compute_crit_angl(data, storm_motion):
 
 
 def compute_parameters(data, storm_motion):
-    storm_dir, storm_spd = storm_motion
-
     params = {}
 
-    params['critical'] = compute_crit_angl(data, storm_motion)
+    params['bunkers_right'], params['bunkers_left'] = compute_bunkers(data)
+
+    if storm_motion.lower() in ['blm', 'left-mover']:
+        params['storm_motion'] = params['bunkers_left']
+    elif storm_motion.lower() in ['brm', 'right-mover']:
+        params['storm_motion'] = params['bunkers_right']
+    else:
+        params['storm_motion'] = tuple(int(v) for v in storm_motion.split('/'))
+
+    params['critical'] = compute_crit_angl(data, params['storm_motion'])
     for hght in [1, 3, 6]:
         params["shear_mag_%dkm" % hght] = compute_shear_mag(data, hght)
 
     for hght in [1, 3]:
-        params["srh_%dkm" % hght] = compute_srh(data, storm_motion, hght)
-
-    params['bunkers_right'], params['bunkers_left'] = compute_bunkers(data)
+        params["srh_%dkm" % hght] = compute_srh(data, params['storm_motion'], hght)
 
     return params
 

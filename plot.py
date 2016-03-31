@@ -60,7 +60,8 @@ def _plot_param_table(parameters):
     line_y -= 1.5 * line_space
 
     pylab.text(start_x, line_y, "Storm Motion:", fontweight='bold', **kwargs)
-    pylab.text(start_x + 0.26, line_y + 0.001, "%03d/%02d kts" % (storm_dir, storm_spd), **kwargs)
+    val = "--" if np.isnan(parameters['storm_motion']).any() else "%03d/%02d kts" % (storm_dir, storm_spd)
+    pylab.text(start_x + 0.26, line_y + 0.001, val, **kwargs)
 
     line_y -= line_space
 
@@ -127,16 +128,18 @@ def _plot_data(data, parameters):
 
     pylab.plot([storm_u, u[0], ca_u], [storm_v, v[0], ca_v], 'c-', linewidth=0.75)
 
-    pylab.plot(storm_u, storm_v, 'k+', markersize=6)
-    pylab.text(storm_u + 0.5, storm_v - 0.5, "SM", ha='left', va='top', color='k', fontsize=10)
-
     if not (np.isnan(bl_u) or np.isnan(bl_v)):
         pylab.plot(bl_u, bl_v, 'ko', markersize=5, mfc='none')
         pylab.text(bl_u + 0.5, bl_v - 0.5, "LM", ha='left', va='top', color='k', fontsize=10)
 
-    if not (np.isnan(bl_u) or np.isnan(bl_v)):
+    if not (np.isnan(br_u) or np.isnan(br_v)):
         pylab.plot(br_u, br_v, 'ko', markersize=5, mfc='none')
         pylab.text(br_u + 0.5, br_v - 0.5, "RM", ha='left', va='top', color='k', fontsize=10)
+
+    if not (np.isnan(storm_u) or np.isnan(storm_v)) and storm_u != bl_u and storm_v != bl_v and storm_u != br_u and storm_v != br_v:
+        pylab.plot(storm_u, storm_v, 'k+', markersize=6)
+        pylab.text(storm_u + 0.5, storm_v - 0.5, "SM", ha='left', va='top', color='k', fontsize=10)
+
 
 def _plot_background(max_u):
     max_ring = int(np.ceil(max_u * np.sqrt(2)))
