@@ -101,7 +101,7 @@ def _plot_data(data, storm_motion):
             pylab.plot([u[idx_end - 1], seg_u[idx + 1]], [v[idx_end - 1], seg_v[idx + 1]], '-', color=_seg_colors[idx], linewidth=1.5)
 
         for upt, vpt, rms in zip(u, v, data['rms_error'])[idx_start:idx_end]:
-            rad = 2 * np.sqrt(np.pi) * rms
+            rad = np.sqrt(2) * rms
             circ = Circle((upt, vpt), rad, color=_seg_colors[idx], alpha=0.05)
             pylab.gca().add_patch(circ)
 
