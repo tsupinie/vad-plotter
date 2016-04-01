@@ -5,10 +5,10 @@ The script downloads the VAD data from the NEXRAD Radar Product Dissemination pa
 
 ## Usage
 ```
-python vad.py RADAR_ID -m STORM_MOTION [ -s SFC_WIND ] [ -t TIME ]
+python vad.py RADAR_ID [ -m STORM_MOTION ] [ -s SFC_WIND ] [ -t TIME ]
 ```
 * `RADAR_ID` is a 4-character radar identifier (e.g. KTLX, KFWS)
-* `STORM_MOTION` is the storm motion vector. It takes the form `DDD/SS`, where `DDD` is the direction the storm is coming from in degrees, and `SS` is the storm speed in knots. An example might be 240/35 (from the WSW at 35 kts).
+* `STORM_MOTION` is the storm motion vector. It can take one of two form. The first is either 'BRM' for the Bunkers right-mover vector or 'BLM' for the Bunkers left-mover vector. The second form is `DDD/SS`, where `DDD` is the direction the storm is coming from in degrees, and `SS` is the storm speed in knots. An example might be 240/35 (from the WSW at 35 kts).  If the argument is not specified, the default is to use the Bunkers right-mover vector.
 * `SFC_WIND` is the surface wind vector. Its form is the same as the storm motion vector.
 * `TIME` is the plot time. It takes the form DD/HHMM, where DD is the day, HH is the hour, and MM is the minute. The script will plot the most recent VAD as of this time.
 
