@@ -20,12 +20,8 @@ Modified:   26 April 2015
                 Fixed SRH calculations.
             28 December 2015
                 Migrated to its own package, ravamped plot, fixed SRH calculations for real this time.
-Usage:
-            vad.py RADAR_ID -m STORM_MOTION [ -s SFC_WIND ]
-
-RADAR_ID is the 4-character identifier for the radar (e.g. KTLX, KFWS, etc.). 
-STORM_MOTION takes the form DDD/SS, where DDD is the direction the storm is coming from, and SS is the speed in knots (e.g. 240/25)."
-SFC_WIND takes the form DDD/SS, where DDD is the direction the surface wind is coming from, and SS is the speed in knots (e.g. 160/10)."
+            30 March 2016
+                Fixed RMS error circle size, and added Bunkers motion vector calculations.
 """
 
 def is_vector(vec_str):
@@ -37,7 +33,7 @@ def parse_vector(vec_str):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('radar_id', help="The 4-character identifier for the radar (e.g. KTLX, KFWS, etc.)")
-    ap.add_argument('-m', dest='storm_motion', help="Storm motion vector. It takes the form DDD/SS, where DDD is the direction the storm is coming from, and SS is the speed in knots (e.g. 240/25).", default='right-mover')
+    ap.add_argument('-m', dest='storm_motion', help="Storm motion vector. It takes one of two forms. The first is either 'BRM' for the Bunkers right mover vector, or 'BLM' for the Bunkers left mover vector. The second is the form DDD/SS, where DDD is the direction the storm is coming from, and SS is the speed in knots (e.g. 240/25).", default='right-mover')
     ap.add_argument('-s', dest='sfc_wind', help="Surface wind vector. It takes the form DDD/SS, where DDD is the direction the storm is coming from, and SS is the speed in knots (e.g. 240/25).")
     ap.add_argument('-t', dest='time', help="Time to plot. Takes the form DD/HHMM, where DD is the day, HH is the hour, and MM is the minute.")
     args = ap.parse_args()
