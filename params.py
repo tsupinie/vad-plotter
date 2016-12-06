@@ -12,8 +12,8 @@ def comp2vec(u, v):
     return vdir, vmag
 
 def interp(u, v, altitude, hght):
-    u_hght = np.interp([hght], altitude, u, left=np.nan, right=np.nan)
-    v_hght = np.interp([hght], altitude, v, left=np.nan, right=np.nan)
+    u_hght = np.interp(hght, altitude, u, left=np.nan, right=np.nan)
+    v_hght = np.interp(hght, altitude, v, left=np.nan, right=np.nan)
     return u_hght, v_hght
 
 

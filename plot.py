@@ -101,8 +101,8 @@ def _plot_data(data, parameters):
     seg_idxs = np.searchsorted(alt, _seg_hghts)
     seg_u = np.interp(_seg_hghts, alt, u, left=np.nan, right=np.nan)
     seg_v = np.interp(_seg_hghts, alt, v, left=np.nan, right=np.nan)
-    ca_u = np.interp([0.5], alt, u, left=np.nan, right=np.nan)
-    ca_v = np.interp([0.5], alt, v, left=np.nan, right=np.nan)
+    ca_u = np.interp(0.5, alt, u, left=np.nan, right=np.nan)
+    ca_v = np.interp(0.5, alt, v, left=np.nan, right=np.nan)
 
     for idx in xrange(len(_seg_hghts) - 1):
         idx_start = seg_idxs[idx]
