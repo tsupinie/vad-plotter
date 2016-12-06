@@ -126,7 +126,8 @@ def _plot_data(data, parameters):
             circ = Circle((upt, vpt), rad, color=_seg_colors[idx], alpha=0.05)
             pylab.gca().add_patch(circ)
 
-    pylab.plot([storm_u, u[0], ca_u], [storm_v, v[0], ca_v], 'c-', linewidth=0.75)
+    pylab.plot([storm_u, u[0]], [storm_v, v[0]], 'c-', linewidth=0.75)
+    pylab.plot([u[0], ca_u], [v[0], ca_v], 'm-', linewidth=0.75)
 
     if not (np.isnan(bl_u) or np.isnan(bl_v)):
         pylab.plot(bl_u, bl_v, 'ko', markersize=5, mfc='none')

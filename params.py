@@ -9,6 +9,8 @@ def vec2comp(wdir, wspd):
 def comp2vec(u, v):
     vmag = np.hypot(u, v)
     vdir = 90 - np.degrees(np.arctan2(-v, -u))
+    vdir = np.where(vdir < 0, vdir + 360, vdir)
+    vdir = np.where(vdir >= 360, vdir - 360, vdir)
     return vdir, vmag
 
 def interp(u, v, altitude, hght):

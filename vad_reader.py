@@ -10,7 +10,7 @@ import re
 _base_url = "ftp://tgftp.nws.noaa.gov/SL.us008001/DF.of/DC.radar/DS.48vwp/"
 
 class VADFile(object):
-    fields = ['wind_dir', 'wind_spd', 'rms_error', 'slant_range', 'elev_angle']
+    fields = ['wind_dir', 'wind_spd', 'rms_error', 'divergence', 'slant_range', 'elev_angle']
 
     def __init__(self, file):
         self._rpg = file
@@ -210,6 +210,7 @@ class VADFile(object):
             data['wind_dir'].append(float(values[4]))
             data['wind_spd'].append(float(values[5]))
             data['rms_error'].append(float(values[6]))
+            data['divergence'].append(float(values[7]) if values[7] != 'NA' else np.nan)
             data['slant_range'].append(float(values[8]))
             data['elev_angle'].append(float(values[9]))
 
@@ -260,14 +261,18 @@ def find_file_times(rid):
 
         file_dts.append(ft_dt)
 
+    file_list = zip(file_names, file_dts)
+    file_list.sort(key=lambda fl: fl[1])
+
+    file_names, file_dts = zip(*file_list)
+    file_names = list(file_names)
+
     # The files are only moved into place when the next one is generated, so shift the
     # file names by one index to account for that.
     file_names[:-1] = file_names[1:]
     file_names[-1] = 'sn.last'
 
-    file_list = zip(file_names, file_dts)
-    file_list.sort(key=lambda fl: fl[1])
-    return file_list
+    return zip(file_names, file_dts)[::-1]
 
   
 def download_vad(rid, time=None):
@@ -276,8 +281,11 @@ def download_vad(rid, time=None):
     else:
         file_name = ""
         for fn, ft in find_file_times(rid):
+            print fn, ft
             if ft <= time:
+                print "setting fn to", fn
                 file_name = fn
+                break
 
         if file_name == "":
             raise ValueError("No VAD files before %s." % time.strftime("%d %B %Y %H%M UTC"))
