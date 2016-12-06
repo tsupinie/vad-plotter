@@ -281,9 +281,7 @@ def download_vad(rid, time=None):
     else:
         file_name = ""
         for fn, ft in find_file_times(rid):
-            print fn, ft
             if ft <= time:
-                print "setting fn to", fn
                 file_name = fn
                 break
 
