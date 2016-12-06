@@ -36,6 +36,7 @@ def main():
     ap.add_argument('-m', dest='storm_motion', help="Storm motion vector. It takes one of two forms. The first is either 'BRM' for the Bunkers right mover vector, or 'BLM' for the Bunkers left mover vector. The second is the form DDD/SS, where DDD is the direction the storm is coming from, and SS is the speed in knots (e.g. 240/25).", default='right-mover')
     ap.add_argument('-s', dest='sfc_wind', help="Surface wind vector. It takes the form DDD/SS, where DDD is the direction the storm is coming from, and SS is the speed in knots (e.g. 240/25).")
     ap.add_argument('-t', dest='time', help="Time to plot. Takes the form DD/HHMM, where DD is the day, HH is the hour, and MM is the minute.")
+    ap.add_argument('-f', dest='fname', help="Name of the file produced.")
     args = ap.parse_args()
 
     np.seterr(all='ignore')
@@ -69,7 +70,7 @@ def main():
         vad.add_surface_wind(sfc_wind)
 
     params = compute_parameters(vad, args.storm_motion)
-    plot_hodograph(vad, params)
+    plot_hodograph(vad, params, fname=args.fname)
 
 if __name__ == "__main__":
     main()

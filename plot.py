@@ -155,9 +155,12 @@ def _plot_background(max_u):
         pylab.text(irng + 0.5, -0.5, rng_str, ha='left', va='top', fontsize=9, color='#999999', clip_on=True, clip_box=pylab.gca().get_clip_box())
 
 
-def plot_hodograph(data, parameters):
+def plot_hodograph(data, parameters, fname=None):
     img_title = "%s VWP valid %s" % (data.rid, data['time'].strftime("%d %b %Y %H%M UTC"))
-    img_file_name = "%s_vad.png" % data.rid
+    if fname is not None:
+        img_file_name = fname
+    else:
+        img_file_name = "%s_vad.png" % data.rid
     max_u = 80
 
     pylab.figure(figsize=(10, 7.5), dpi=150)
