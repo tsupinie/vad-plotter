@@ -1,8 +1,8 @@
 
 import numpy as np
 
-import matplotlib
-matplotlib.use('agg')
+import matplotlib as mpl
+mpl.use('agg')
 import pylab
 from matplotlib.patches import Circle
 from matplotlib.lines import Line2D
@@ -13,7 +13,7 @@ _seg_hghts = [0, 3, 6, 9, 12, 18]
 _seg_colors = ['r', '#00ff00', '#008800', '#993399', 'c']
 
 
-def _plot_param_table(parameters):
+def _plot_param_table(parameters, web=False):
     storm_dir, storm_spd = parameters['storm_motion']
     trans = pylab.gca().transAxes
     line_space = 0.028
@@ -30,8 +30,13 @@ def _plot_param_table(parameters):
     pylab.gca().add_line(spacer)
     line_y -= line_space * 1.5
 
-    pylab.text(start_x + 0.095, line_y,          "BWD (kts)", fontweight='bold', **kwargs)
-    pylab.text(start_x + 0.22,  line_y - 0.0025, "SRH (m$^2$s$^{-2}$)", fontweight='bold', **kwargs)
+    pylab.text(start_x + 0.095, line_y - 0.0025, "BWD (kts)", fontweight='bold', **kwargs)
+    if not web:
+        pylab.text(start_x + 0.22,  line_y - 0.0025, "SRH (m$^2$s$^{-2}$)", fontweight='bold', **kwargs)
+    else:
+        # Awful, awful hack for matplotlib without a LaTeX distribution
+        pylab.text(start_x + 0.22,  line_y - 0.0025, "SRH (m s  )", fontweight='bold', **kwargs)
+        pylab.text(start_x + 0.305,  line_y + 0.009, "2   -2", fontweight='bold', color='k', fontsize=6, clip_on=False, transform=trans)
 
     line_y -= line_space
 
@@ -73,20 +78,28 @@ def _plot_param_table(parameters):
     line_y -= line_space
 
     br_dir, br_spd = parameters['bunkers_right']
-    pylab.text(start_x, line_y, "Bunkers Right Mover:", fontweight='bold', **kwargs)
+    pylab.text(start_x, line_y - 0.005, "Bunkers Right Mover:", fontweight='bold', **kwargs)
     val = "--" if np.isnan(parameters['bunkers_right']).any() else "%03d/%02d kts" % (br_dir, br_spd)
-    pylab.text(start_x + 0.26, line_y + 0.001, val, **kwargs)
+    if not web:
+        pylab.text(start_x + 0.26, line_y + 0.001, val, **kwargs)
+    else:
+        pylab.text(start_x + 0.26, line_y - 0.001, val, **kwargs)
 
     spacer = Line2D([start_x, start_x + 0.361], [line_y - line_space * 0.48] * 2, color='k', linestyle='-', transform=trans, clip_on=False)
     pylab.gca().add_line(spacer)
     line_y -= 1.5 * line_space
 
-    pylab.text(start_x, line_y, "Critical Angle:", fontweight='bold', **kwargs)
-    val = "--" if np.isnan(parameters['critical']) else "%d$^{\circ}$" % int(parameters['critical'])
-    pylab.text(start_x + 0.18, line_y - 0.0025, val, **kwargs)
+    if not web:
+        pylab.text(start_x, line_y, "Critical Angle:", fontweight='bold', **kwargs)
+        val = "--" if np.isnan(parameters['critical']) else "%d$^{\circ}$" % int(parameters['critical'])
+        pylab.text(start_x + 0.18, line_y - 0.0025, val, **kwargs)
+    else:
+        pylab.text(start_x, line_y - 0.0075, "Critical Angle:", fontweight='bold', **kwargs)
+        val = "--" if np.isnan(parameters['critical']) else "%d deg" % int(parameters['critical'])
+        pylab.text(start_x + 0.18, line_y - 0.0075, val, **kwargs)
 
 
-def _plot_data(data, parameters):
+def _plot_data(data, parameters, web=False):
     storm_dir, storm_spd = parameters['storm_motion']
     bl_dir, bl_spd = parameters['bunkers_left']
     br_dir, br_spd = parameters['bunkers_right']
@@ -126,8 +139,11 @@ def _plot_data(data, parameters):
             circ = Circle((upt, vpt), rad, color=_seg_colors[idx], alpha=0.05)
             pylab.gca().add_patch(circ)
 
-    pylab.plot([storm_u, u[0]], [storm_v, v[0]], 'c-', linewidth=0.75)
-    pylab.plot([u[0], ca_u], [v[0], ca_v], 'm-', linewidth=0.75)
+    try:
+        pylab.plot([storm_u, u[0]], [storm_v, v[0]], 'c-', linewidth=0.75)
+        pylab.plot([u[0], ca_u], [v[0], ca_v], 'm-', linewidth=0.75)
+    except IndexError:
+        pass
 
     if not (np.isnan(bl_u) or np.isnan(bl_v)):
         pylab.plot(bl_u, bl_v, 'ko', markersize=5, mfc='none')
@@ -156,7 +172,7 @@ def _plot_background(max_u):
         pylab.text(irng + 0.5, -0.5, rng_str, ha='left', va='top', fontsize=9, color='#999999', clip_on=True, clip_box=pylab.gca().get_clip_box())
 
 
-def plot_hodograph(data, parameters, fname=None):
+def plot_hodograph(data, parameters, fname=None, web=False):
     img_title = "%s VWP valid %s" % (data.rid, data['time'].strftime("%d %b %Y %H%M UTC"))
     if fname is not None:
         img_file_name = fname
@@ -176,7 +192,7 @@ def plot_hodograph(data, parameters, fname=None):
 
     _plot_background(max_u)
     _plot_data(data, parameters)
-    _plot_param_table(parameters)
+    _plot_param_table(parameters, web=web)
 
     pylab.xlim(-max_u / 2, max_u)
     pylab.ylim(-max_u / 2, max_u)

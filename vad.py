@@ -37,6 +37,7 @@ def main():
     ap.add_argument('-s', dest='sfc_wind', help="Surface wind vector. It takes the form DDD/SS, where DDD is the direction the storm is coming from, and SS is the speed in knots (e.g. 240/25).")
     ap.add_argument('-t', dest='time', help="Time to plot. Takes the form DD/HHMM, where DD is the day, HH is the hour, and MM is the minute.")
     ap.add_argument('-f', dest='fname', help="Name of the file produced.")
+    ap.add_argument('-w', dest='web', action='store_true')
     args = ap.parse_args()
 
     np.seterr(all='ignore')
@@ -56,21 +57,24 @@ def main():
                 month -= 1
             plot_time = datetime.strptime("%d %d %s" % (year, month, args.time), "%Y %m %d/%H%M")
 
-    print "Plotting VAD for %s ..." % args.radar_id
+    if not args.web:
+        print "Plotting VAD for %s ..." % args.radar_id
+
     try:
         vad = download_vad(args.radar_id, time=plot_time)
     except ValueError as e:
         print e
         sys.exit()
 
-    print "Valid time:", vad['time'].strftime("%d %B %Y %H%M UTC")
+    if not args.web:
+        print "Valid time:", vad['time'].strftime("%d %B %Y %H%M UTC")
 
     if args.sfc_wind:
         sfc_wind = parse_vector(args.sfc_wind)
         vad.add_surface_wind(sfc_wind)
 
     params = compute_parameters(vad, args.storm_motion)
-    plot_hodograph(vad, params, fname=args.fname)
+    plot_hodograph(vad, params, fname=args.fname, web=args.web)
 
 if __name__ == "__main__":
     main()

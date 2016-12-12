@@ -39,6 +39,9 @@ def compute_shear_mag(data, hght):
 
 def compute_srh(data, storm_motion, hght):
     u, v = vec2comp(data['wind_dir'], data['wind_spd'])
+    if len(u) < 2 and len(v) < 2:
+        return np.nan
+
     storm_u, storm_v = vec2comp(*storm_motion)
 
     sru = (u - storm_u) / 1.94
@@ -101,7 +104,11 @@ def compute_crit_angl(data, storm_motion):
 def compute_parameters(data, storm_motion):
     params = {}
 
-    params['bunkers_right'], params['bunkers_left'] = compute_bunkers(data)
+    try:
+        params['bunkers_right'], params['bunkers_left'] = compute_bunkers(data)
+    except IndexError:
+        params['bunkers_right'] = (np.nan, np.nan)
+        params['bunkers_left'] = (np.nan, np.nan)
 
     if storm_motion.lower() in ['blm', 'left-mover']:
         params['storm_motion'] = params['bunkers_left']
@@ -110,9 +117,16 @@ def compute_parameters(data, storm_motion):
     else:
         params['storm_motion'] = tuple(int(v) for v in storm_motion.split('/'))
 
-    params['critical'] = compute_crit_angl(data, params['storm_motion'])
+    try:
+        params['critical'] = compute_crit_angl(data, params['storm_motion'])
+    except IndexError:
+        params['critical'] = np.nan
+
     for hght in [1, 3, 6]:
-        params["shear_mag_%dkm" % hght] = compute_shear_mag(data, hght)
+        try:
+            params["shear_mag_%dkm" % hght] = compute_shear_mag(data, hght)
+        except IndexError:
+            params["shear_mag_%dkm" % hght] = np.nan
 
     for hght in [1, 3]:
         params["srh_%dkm" % hght] = compute_srh(data, params['storm_motion'], hght)
