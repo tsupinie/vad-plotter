@@ -78,7 +78,10 @@ def _plot_param_table(parameters, web=False):
     line_y -= line_space
 
     br_dir, br_spd = parameters['bunkers_right']
-    pylab.text(start_x, line_y - 0.005, "Bunkers Right Mover:", fontweight='bold', **kwargs)
+    if not web:
+        pylab.text(start_x, line_y, "Bunkers Right Mover:", fontweight='bold', **kwargs)
+    else:
+        pylab.text(start_x, line_y - 0.005, "Bunkers Right Mover:", fontweight='bold', **kwargs)
     val = "--" if np.isnan(parameters['bunkers_right']).any() else "%03d/%02d kts" % (br_dir, br_spd)
     if not web:
         pylab.text(start_x + 0.26, line_y + 0.001, val, **kwargs)
@@ -99,7 +102,7 @@ def _plot_param_table(parameters, web=False):
         pylab.text(start_x + 0.18, line_y - 0.0075, val, **kwargs)
 
 
-def _plot_data(data, parameters, web=False):
+def _plot_data(data, parameters):
     storm_dir, storm_spd = parameters['storm_motion']
     bl_dir, bl_spd = parameters['bunkers_left']
     br_dir, br_spd = parameters['bunkers_right']
