@@ -7,6 +7,8 @@ import pylab
 from matplotlib.patches import Circle
 from matplotlib.lines import Line2D
 
+import json
+
 from params import vec2comp
 
 _seg_hghts = [0, 3, 6, 9, 12, 18]
@@ -161,8 +163,14 @@ def _plot_data(data, parameters):
         pylab.text(storm_u + 0.5, storm_v - 0.5, "SM", ha='left', va='top', color='k', fontsize=10)
 
 
-def _plot_background(max_u):
-    max_ring = int(np.ceil(max_u * np.sqrt(2)))
+def _plot_background(min_u, max_u, min_v, max_v):
+    max_ring = int(np.ceil(max(
+        np.hypot(min_u, min_v),
+        np.hypot(min_u, max_v),
+        np.hypot(max_u, min_v),
+        np.hypot(max_u, max_v)
+    )))
+
     pylab.axvline(x=0, linestyle='-', color='#999999')
     pylab.axhline(y=0, linestyle='-', color='#999999')
 
@@ -170,18 +178,37 @@ def _plot_background(max_u):
         ring = Circle((0., 0.), irng, linestyle='dashed', fc='none', ec='#999999')
         pylab.gca().add_patch(ring)
 
-        rng_str = "%d" % irng if irng != max_u - 10 else "%d kts" % irng
+        if irng <= max_u - 10:
+            rng_str = "%d kts" % irng if max_u - 20 < irng <= max_u - 10 else "%d" % irng
 
-        pylab.text(irng + 0.5, -0.5, rng_str, ha='left', va='top', fontsize=9, color='#999999', clip_on=True, clip_box=pylab.gca().get_clip_box())
+            pylab.text(irng + 0.5, -0.5, rng_str, ha='left', va='top', fontsize=9, color='#999999', clip_on=True, clip_box=pylab.gca().get_clip_box())
 
 
-def plot_hodograph(data, parameters, fname=None, web=False):
+def plot_hodograph(data, parameters, fname=None, web=False, fixed=False):
     img_title = "%s VWP valid %s" % (data.rid, data['time'].strftime("%d %b %Y %H%M UTC"))
     if fname is not None:
         img_file_name = fname
     else:
         img_file_name = "%s_vad.png" % data.rid
-    max_u = 80
+
+    if fixed:
+        ctr_u, ctr_v = 20, 20
+        size = 120
+    else:
+        u, v = vec2comp(data['wind_dir'], data['wind_spd'])
+        ctr_u = u.mean()
+        ctr_v = v.mean()
+        size = max(u.max() - u.min(), v.max() - v.min()) + 20
+        size = max(120, size)
+
+    min_u = ctr_u - size / 2
+    max_u = ctr_u + size / 2
+    min_v = ctr_v - size / 2
+    max_v = ctr_v + size / 2
+
+    if web:
+        bounds = {'min_u':min_u, 'max_u':max_u, 'min_v':min_v, 'max_v':max_v}
+        print json.dumps(bounds) 
 
     pylab.figure(figsize=(10, 7.5), dpi=150)
     fig_wid, fig_hght = pylab.gcf().get_size_inches()
@@ -193,12 +220,12 @@ def plot_hodograph(data, parameters, fname=None, web=False):
     axes_wid = axes_hght / fig_aspect
     pylab.axes((axes_left, axes_bot, axes_wid, axes_hght))
 
-    _plot_background(max_u)
+    _plot_background(min_u, max_u, min_v, max_v)
     _plot_data(data, parameters)
     _plot_param_table(parameters, web=web)
 
-    pylab.xlim(-max_u / 2, max_u)
-    pylab.ylim(-max_u / 2, max_u)
+    pylab.xlim(min_u, max_u)
+    pylab.ylim(min_v, max_v)
     pylab.xticks([])
     pylab.yticks([])
 

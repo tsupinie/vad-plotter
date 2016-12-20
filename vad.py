@@ -11,6 +11,7 @@ from plot import plot_hodograph
 import re
 import argparse
 from datetime import datetime, timedelta
+import json
 
 """
 plot_vad.py
@@ -30,6 +31,41 @@ def is_vector(vec_str):
 def parse_vector(vec_str):
     return tuple(int(v) for v in vec_str.strip().split("/"))
 
+def vad_plotter(radar_id, storm_motion='right-mover', sfc_wind=None, time=None, fname=None, web=False, fixed=False):
+    plot_time = None
+    if time:
+        now = datetime.utcnow()
+        year = now.year
+        month = now.month
+
+        plot_time = datetime.strptime("%d %d %s" % (year, month, time), "%Y %m %d/%H%M")
+        if plot_time > now:
+            if month == 1:
+                month = 12
+                year -= 1
+            else:
+                month -= 1
+            plot_time = datetime.strptime("%d %d %s" % (year, month, time), "%Y %m %d/%H%M")
+
+    if not web:
+        print "Plotting VAD for %s ..." % radar_id
+
+    try:
+        vad = download_vad(radar_id, time=plot_time)
+    except ValueError as e:
+        print e
+        sys.exit()
+
+    if not web:
+        print "Valid time:", vad['time'].strftime("%d %B %Y %H%M UTC")
+
+    if sfc_wind:
+        sfc_wind = parse_vector(sfc_wind)
+        vad.add_surface_wind(sfc_wind)
+
+    params = compute_parameters(vad, storm_motion)
+    plot_hodograph(vad, params, fname=fname, web=web, fixed=fixed)
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('radar_id', help="The 4-character identifier for the radar (e.g. KTLX, KFWS, etc.)")
@@ -38,43 +74,19 @@ def main():
     ap.add_argument('-t', dest='time', help="Time to plot. Takes the form DD/HHMM, where DD is the day, HH is the hour, and MM is the minute.")
     ap.add_argument('-f', dest='fname', help="Name of the file produced.")
     ap.add_argument('-w', dest='web', action='store_true')
+    ap.add_argument('-x', dest='fixed', action='store_true')
     args = ap.parse_args()
 
     np.seterr(all='ignore')
 
-    plot_time = None
-    if args.time:
-        now = datetime.utcnow()
-        year = now.year
-        month = now.month
-
-        plot_time = datetime.strptime("%d %d %s" % (year, month, args.time), "%Y %m %d/%H%M")
-        if plot_time > now:
-            if month == 1:
-                month = 12
-                year -= 1
-            else:
-                month -= 1
-            plot_time = datetime.strptime("%d %d %s" % (year, month, args.time), "%Y %m %d/%H%M")
-
-    if not args.web:
-        print "Plotting VAD for %s ..." % args.radar_id
-
-    try:
-        vad = download_vad(args.radar_id, time=plot_time)
-    except ValueError as e:
-        print e
-        sys.exit()
-
-    if not args.web:
-        print "Valid time:", vad['time'].strftime("%d %B %Y %H%M UTC")
-
-    if args.sfc_wind:
-        sfc_wind = parse_vector(args.sfc_wind)
-        vad.add_surface_wind(sfc_wind)
-
-    params = compute_parameters(vad, args.storm_motion)
-    plot_hodograph(vad, params, fname=args.fname, web=args.web)
+    vad_plotter(args.radar_id,
+        storm_motion=args.storm_motion,
+        sfc_wind=args.sfc_wind,
+        time=args.time,
+        fname=args.fname,
+        web=args.web,
+        fixed=args.fixed
+    )
 
 if __name__ == "__main__":
     main()
