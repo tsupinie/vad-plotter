@@ -28,8 +28,10 @@ Modified:   26 April 2015
 def is_vector(vec_str):
     return bool(re.match(r"[\d]{3}/[\d]{2}", vec_str))
 
+
 def parse_vector(vec_str):
     return tuple(int(v) for v in vec_str.strip().split("/"))
+
 
 def vad_plotter(radar_id, storm_motion='right-mover', sfc_wind=None, time=None, fname=None, web=False, fixed=False):
     plot_time = None
@@ -50,11 +52,7 @@ def vad_plotter(radar_id, storm_motion='right-mover', sfc_wind=None, time=None, 
     if not web:
         print "Plotting VAD for %s ..." % radar_id
 
-    try:
-        vad = download_vad(radar_id, time=plot_time)
-    except ValueError as e:
-        print e
-        sys.exit()
+    vad = download_vad(radar_id, time=plot_time)
 
     if not web:
         print "Valid time:", vad['time'].strftime("%d %B %Y %H%M UTC")
