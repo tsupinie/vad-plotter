@@ -206,10 +206,6 @@ def plot_hodograph(data, parameters, fname=None, web=False, fixed=False):
     min_v = ctr_v - size / 2
     max_v = ctr_v + size / 2
 
-    if web:
-        bounds = {'min_u':min_u, 'max_u':max_u, 'min_v':min_v, 'max_v':max_v}
-        print json.dumps(bounds) 
-
     pylab.figure(figsize=(10, 7.5), dpi=150)
     fig_wid, fig_hght = pylab.gcf().get_size_inches()
     fig_aspect = fig_wid / fig_hght
@@ -233,3 +229,6 @@ def plot_hodograph(data, parameters, fname=None, web=False, fixed=False):
     pylab.savefig(img_file_name)
     pylab.close()
 
+    if web:
+        bounds = {'min_u':min_u, 'max_u':max_u, 'min_v':min_v, 'max_v':max_v}
+        print json.dumps(bounds) 

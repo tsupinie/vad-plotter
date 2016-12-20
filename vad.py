@@ -79,14 +79,20 @@ def main():
 
     np.seterr(all='ignore')
 
-    vad_plotter(args.radar_id,
-        storm_motion=args.storm_motion,
-        sfc_wind=args.sfc_wind,
-        time=args.time,
-        fname=args.fname,
-        web=args.web,
-        fixed=args.fixed
-    )
+    try:
+        vad_plotter(args.radar_id,
+            storm_motion=args.storm_motion,
+            sfc_wind=args.sfc_wind,
+            time=args.time,
+            fname=args.fname,
+            web=args.web,
+            fixed=args.fixed
+        )
+    except:
+        if args.web:
+            print json.dumps({'error':'error'})
+        else:
+            raise
 
 if __name__ == "__main__":
     main()
