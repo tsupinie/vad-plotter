@@ -191,11 +191,12 @@ def plot_hodograph(data, parameters, fname=None, web=False, fixed=False):
     else:
         img_file_name = "%s_vad.png" % data.rid
 
-    if fixed:
+    u, v = vec2comp(data['wind_dir'], data['wind_spd'])
+
+    if fixed or len(u) == 0:
         ctr_u, ctr_v = 20, 20
         size = 120
     else:
-        u, v = vec2comp(data['wind_dir'], data['wind_spd'])
         ctr_u = u.mean()
         ctr_v = v.mean()
         size = max(u.max() - u.min(), v.max() - v.min()) + 20
