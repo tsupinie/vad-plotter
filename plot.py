@@ -8,11 +8,30 @@ from matplotlib.patches import Circle
 from matplotlib.lines import Line2D
 
 import json
+from datetime import datetime, timedelta
 
 from params import vec2comp
 
 _seg_hghts = [0, 3, 6, 9, 12, 18]
 _seg_colors = ['r', '#00ff00', '#008800', '#993399', 'c']
+
+
+def _fmt_timedelta(td):
+    seconds = int(td.total_seconds())
+    periods = [
+            ('dy', 60*60*24),
+            ('hr',    60*60),
+            ('min',       60),
+            ('sec',        1)
+            ]
+
+    strings=[]
+    for period_name,period_seconds in periods:
+            if seconds > period_seconds:
+                    period_value, seconds = divmod(seconds,period_seconds)
+                    strings.append("%s %s" % (period_value, period_name))
+
+    return " ".join(strings)
 
 
 def _plot_param_table(parameters, web=False):
@@ -207,6 +226,10 @@ def plot_hodograph(data, parameters, fname=None, web=False, fixed=False):
     min_v = ctr_v - size / 2
     max_v = ctr_v + size / 2
 
+    now = datetime.utcnow()
+    img_age = now - data['time']
+    age_str = "Image created on %s (%s old)" % (now.strftime("%d %b %Y %H%M UTC"), _fmt_timedelta(img_age))
+
     pylab.figure(figsize=(10, 7.5), dpi=150)
     fig_wid, fig_hght = pylab.gcf().get_size_inches()
     fig_aspect = fig_wid / fig_hght
@@ -227,6 +250,8 @@ def plot_hodograph(data, parameters, fname=None, web=False, fixed=False):
     pylab.yticks([])
 
     pylab.title(img_title)
+    pylab.text(0., -0.01, age_str, transform=pylab.gca().transAxes, ha='left', va='top', fontsize=9)
+
     pylab.savefig(img_file_name)
     pylab.close()
 
