@@ -15,9 +15,11 @@ from params import vec2comp
 _seg_hghts = [0, 3, 6, 9, 12, 18]
 _seg_colors = ['r', '#00ff00', '#008800', '#993399', 'c']
 
+def _total_seconds(td):
+    return td.days * 24 * 3600 + td.seconds + td.microseconds * 1e-6
 
 def _fmt_timedelta(td):
-    seconds = int(td.total_seconds())
+    seconds = int(_total_seconds(td))
     periods = [
             ('dy', 60*60*24),
             ('hr',    60*60),
