@@ -295,6 +295,4 @@ def download_vad(rid, time=None):
     except urllib2.URLError:
         raise ValueError("Could not find radar site '%s'" % rid.upper())
 
-    vad.rid = rid
-
     return vad

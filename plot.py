@@ -205,7 +205,7 @@ def _plot_background(min_u, max_u, min_v, max_v):
             pylab.text(irng + 0.5, -0.5, rng_str, ha='left', va='top', fontsize=9, color='#999999', clip_on=True, clip_box=pylab.gca().get_clip_box())
 
 
-def plot_hodograph(data, parameters, fname=None, web=False, fixed=False):
+def plot_hodograph(data, parameters, fname=None, web=False, fixed=False, archive=False):
     img_title = "%s VWP valid %s" % (data.rid, data['time'].strftime("%d %b %Y %H%M UTC"))
     if fname is not None:
         img_file_name = fname
@@ -252,7 +252,8 @@ def plot_hodograph(data, parameters, fname=None, web=False, fixed=False):
     pylab.yticks([])
 
     pylab.title(img_title)
-    pylab.text(0., -0.01, age_str, transform=pylab.gca().transAxes, ha='left', va='top', fontsize=9)
+    if not archive:
+        pylab.text(0., -0.01, age_str, transform=pylab.gca().transAxes, ha='left', va='top', fontsize=9)
 
     pylab.savefig(img_file_name)
     pylab.close()
