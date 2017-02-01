@@ -4,7 +4,11 @@ import numpy as np
 import struct
 from datetime import datetime, timedelta
 
-import urllib2
+try:
+    from urllib.request import urlopen, URLError
+except ImportError:
+    from urllib2 import urlopen, URLError
+
 import re
 
 _base_url = "ftp://tgftp.nws.noaa.gov/SL.us008001/DF.of/DC.radar/DS.48vwp/"
@@ -52,7 +56,7 @@ class VADFile(object):
 
         product_code = self._read('h')
         if product_code != 48:
-            print "This isn't a VAD file."
+            print("This isn't a VAD file.")
 
         operational_mode    = self._read('h')
         self._vcp           = self._read('h')
@@ -87,13 +91,13 @@ class VADFile(object):
         block_id = self._read('h')
 
         if block_id != 1:
-            print "This isn't the product symbology block."
+            print("This isn't the product symbology block.")
 
         block_length    = self._read('i')
         num_layers      = self._read('h')
         layer_separator = self._read('h')
         layer_num_bytes = self._read('i')
-        block_data      = self._read('h' * (layer_num_bytes / struct.calcsize('h')))
+        block_data      = self._read('h' * int(layer_num_bytes / struct.calcsize('h')))
 
         packet_code = -1
         packet_size = -1
@@ -115,7 +119,7 @@ class VADFile(object):
 
                 if packet_counter == packet_size:
                     if packet_code == 8:
-                        str_data = struct.pack('>' + 'h' * (packet_size / struct.calcsize('h') - 3), *packet[2:])
+                        str_data = struct.pack('>' + 'h' * int(packet_size / struct.calcsize('h') - 3), *packet[2:])
                     elif packet_code == 4:
                         pass
 
@@ -130,7 +134,7 @@ class VADFile(object):
         self._read('h')
         block_id = self._read('h')
         if block_id != 3:
-            print "This is not the tabular block."
+            print("This is not the tabular block.")
 
         block_size = self._read('i')
 
@@ -190,7 +194,7 @@ class VADFile(object):
             data = struct.unpack(">%s" % type_string, self._rpg.read(size))
         else:
             size = int(type_string[1:])
-            data = tuple([ self._rpg.read(size).strip("\0") ])
+            data = tuple([ self._rpg.read(size).strip(bytes(b"\0")) ])
 
         if len(data) == 1:
             return data[0]
@@ -214,7 +218,7 @@ class VADFile(object):
             data['slant_range'].append(float(values[8]))
             data['elev_angle'].append(float(values[9]))
 
-        for key, val in data.iteritems():
+        for key, val in data.items():
             data[key] = np.array(val)
 
 
@@ -224,7 +228,7 @@ class VADFile(object):
         data['altitude'] = np.sqrt(r_e ** 2 + data['slant_range'] ** 2 + 2 * r_e * data['slant_range'] * np.sin(np.radians(data['elev_angle']))) - r_e
 
         order = np.argsort(data['altitude'])
-        for key, val in data.iteritems():
+        for key, val in data.items():
             data[key] = val[order]
         return data
 
@@ -247,9 +251,9 @@ class VADFile(object):
 def find_file_times(rid):
     url = "%s/SI.%s/" % (_base_url, rid.lower())
 
-    file_text = urllib2.urlopen(url).read()
+    file_text = urlopen(url).read()
     file_list = re.findall("([\w]{3} [\d]{1,2} [\d]{2}:[\d]{2}) (sn.[\d]{4})", file_text)
-    file_times, file_names = zip(*file_list)
+    file_times, file_names = list(zip(*file_list))
     file_names = list(file_names)
 
     year = datetime.utcnow().year
@@ -261,10 +265,10 @@ def find_file_times(rid):
 
         file_dts.append(ft_dt)
 
-    file_list = zip(file_names, file_dts)
+    file_list = list(zip(file_names, file_dts))
     file_list.sort(key=lambda fl: fl[1])
 
-    file_names, file_dts = zip(*file_list)
+    file_names, file_dts = list(zip(*file_list))
     file_names = list(file_names)
 
     # The files are only moved into place when the next one is generated, so shift the
@@ -272,7 +276,7 @@ def find_file_times(rid):
     file_names[:-1] = file_names[1:]
     file_names[-1] = 'sn.last'
 
-    return zip(file_names, file_dts)[::-1]
+    return list(zip(file_names, file_dts))[::-1]
 
   
 def download_vad(rid, time=None):
@@ -291,8 +295,8 @@ def download_vad(rid, time=None):
         url = "%s/SI.%s/%s" % (_base_url, rid.lower(), file_name)
 
     try:
-        vad = VADFile(urllib2.urlopen(url))
-    except urllib2.URLError:
+        vad = VADFile(urlopen(url))
+    except URLError:
         raise ValueError("Could not find radar site '%s'" % rid.upper())
 
     return vad

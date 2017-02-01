@@ -68,7 +68,7 @@ def vad_plotter(radar_id, storm_motion='right-mover', sfc_wind=None, time=None, 
         raise ValueError("'-t' ('--time') argument is required when loading from the local disk.")
 
     if not web:
-        print "Plotting VAD for %s ..." % radar_id
+        print("Plotting VAD for %s ..." % radar_id)
 
     if local_path is None:
         vad = download_vad(radar_id, time=plot_time)
@@ -79,7 +79,7 @@ def vad_plotter(radar_id, storm_motion='right-mover', sfc_wind=None, time=None, 
     vad.rid = radar_id
 
     if not web:
-        print "Valid time:", vad['time'].strftime("%d %B %Y %H%M UTC")
+        print("Valid time:", vad['time'].strftime("%d %B %Y %H%M UTC"))
 
     if sfc_wind:
         sfc_wind = parse_vector(sfc_wind)
@@ -115,7 +115,7 @@ def main():
         )
     except:
         if args.web:
-            print json.dumps({'error':'error'})
+            print(json.dumps({'error':'error'}))
         else:
             raise
 

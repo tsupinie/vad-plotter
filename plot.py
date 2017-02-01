@@ -138,12 +138,18 @@ def _plot_data(data, parameters):
     br_u, br_v = vec2comp(br_dir, br_spd)
 
     seg_idxs = np.searchsorted(alt, _seg_hghts)
-    seg_u = np.interp(_seg_hghts, alt, u, left=np.nan, right=np.nan)
-    seg_v = np.interp(_seg_hghts, alt, v, left=np.nan, right=np.nan)
-    ca_u = np.interp(0.5, alt, u, left=np.nan, right=np.nan)
-    ca_v = np.interp(0.5, alt, v, left=np.nan, right=np.nan)
+    try:
+        seg_u = np.interp(_seg_hghts, alt, u, left=np.nan, right=np.nan)
+        seg_v = np.interp(_seg_hghts, alt, v, left=np.nan, right=np.nan)
+        ca_u = np.interp(0.5, alt, u, left=np.nan, right=np.nan)
+        ca_v = np.interp(0.5, alt, v, left=np.nan, right=np.nan)
+    except ValueError:
+        seg_u = np.nan * np.array(_seg_hghts)
+        seg_v = np.nan * np.array(_seg_hghts)
+        ca_u = np.nan
+        ca_v = np.nan
 
-    for idx in xrange(len(_seg_hghts) - 1):
+    for idx in range(len(_seg_hghts) - 1):
         idx_start = seg_idxs[idx]
         idx_end = seg_idxs[idx + 1]
 
@@ -160,7 +166,7 @@ def _plot_data(data, parameters):
         if not np.isnan(seg_u[idx + 1]):
             pylab.plot([u[idx_end - 1], seg_u[idx + 1]], [v[idx_end - 1], seg_v[idx + 1]], '-', color=_seg_colors[idx], linewidth=1.5)
 
-        for upt, vpt, rms in zip(u, v, data['rms_error'])[idx_start:idx_end]:
+        for upt, vpt, rms in list(zip(u, v, data['rms_error']))[idx_start:idx_end]:
             rad = np.sqrt(2) * rms
             circ = Circle((upt, vpt), rad, color=_seg_colors[idx], alpha=0.05)
             pylab.gca().add_patch(circ)
@@ -195,7 +201,7 @@ def _plot_background(min_u, max_u, min_v, max_v):
     pylab.axvline(x=0, linestyle='-', color='#999999')
     pylab.axhline(y=0, linestyle='-', color='#999999')
 
-    for irng in xrange(10, max_ring, 10):
+    for irng in range(10, max_ring, 10):
         ring = Circle((0., 0.), irng, linestyle='dashed', fc='none', ec='#999999')
         pylab.gca().add_patch(ring)
 
@@ -260,4 +266,4 @@ def plot_hodograph(data, parameters, fname=None, web=False, fixed=False, archive
 
     if web:
         bounds = {'min_u':min_u, 'max_u':max_u, 'min_v':min_v, 'max_v':max_v}
-        print json.dumps(bounds) 
+        print(json.dumps(bounds)) 

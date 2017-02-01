@@ -106,7 +106,7 @@ def compute_parameters(data, storm_motion):
 
     try:
         params['bunkers_right'], params['bunkers_left'] = compute_bunkers(data)
-    except IndexError:
+    except (IndexError, ValueError):
         params['bunkers_right'] = (np.nan, np.nan)
         params['bunkers_left'] = (np.nan, np.nan)
 
@@ -119,13 +119,13 @@ def compute_parameters(data, storm_motion):
 
     try:
         params['critical'] = compute_crit_angl(data, params['storm_motion'])
-    except IndexError:
+    except (IndexError, ValueError):
         params['critical'] = np.nan
 
     for hght in [1, 3, 6]:
         try:
             params["shear_mag_%dkm" % hght] = compute_shear_mag(data, hght)
-        except IndexError:
+        except (IndexError, ValueError):
             params["shear_mag_%dkm" % hght] = np.nan
 
     for hght in [1, 3]:
