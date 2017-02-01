@@ -52,12 +52,12 @@ class VADFile(object):
     def _read_product_description_block(self):
         self._read('h') # Block separator
         self._radar_latitude  = self._read('i') / 1000.
-        self._radar_longiutde = self._read('i') / 1000.
+        self._radar_longitude = self._read('i') / 1000.
         self._radar_elevation = self._read('h')
 
         product_code = self._read('h')
         if product_code != 48:
-            print("This isn't a VAD file.")
+            raise IOError("This isn't a VWP file.")
 
         operational_mode    = self._read('h')
         self._vcp           = self._read('h')
@@ -69,12 +69,12 @@ class VADFile(object):
         product_date = self._read('h')
         product_time = self._read('i')
 
-        self._read('h')      # Product-dependent variable 1 (unused)
-        self._read('h')      # Product-dependent variable 2 (unused)
-        self._read('h')      # Elevation (unused)
-        self._read('h')      # Product-dependent variable 3 (unused)
-        self._read('h' * 16) # Product-dependent thresholds (how do I interpret these?)
-        self._read('h' * 7)  # Product-dependent variables 4-10 (mostly unused ... do I need the max?)
+        self._read('h')   # Product-dependent variable 1 (unused)
+        self._read('h')   # Product-dependent variable 2 (unused)
+        self._read('h')   # Elevation (unused)
+        self._read('h')   # Product-dependent variable 3 (unused)
+        self._read('16h') # Product-dependent thresholds (how do I interpret these?)
+        self._read('7h')  # Product-dependent variables 4-10 (mostly unused ... do I need the max?)
 
         version    = self._read('b')
         spot_blank = self._read('b')
@@ -92,13 +92,13 @@ class VADFile(object):
         block_id = self._read('h')
 
         if block_id != 1:
-            print("This isn't the product symbology block.")
+            raise IOError("This isn't the product symbology block.")
 
         block_length    = self._read('i')
         num_layers      = self._read('h')
         layer_separator = self._read('h')
         layer_num_bytes = self._read('i')
-        block_data      = self._read('h' * int(layer_num_bytes / struct.calcsize('h')))
+        block_data      = self._read('%dh' % int(layer_num_bytes / struct.calcsize('h')))
 
         packet_code = -1
         packet_size = -1
@@ -120,7 +120,7 @@ class VADFile(object):
 
                 if packet_counter == packet_size:
                     if packet_code == 8:
-                        str_data = struct.pack('>' + 'h' * int(packet_size / struct.calcsize('h') - 3), *packet[2:])
+                        str_data = struct.pack('>%dh' % int(packet_size / struct.calcsize('h') - 3), *packet[2:])
                     elif packet_code == 4:
                         pass
 
@@ -135,7 +135,7 @@ class VADFile(object):
         self._read('h')
         block_id = self._read('h')
         if block_id != 3:
-            print("This is not the tabular block.")
+            raise IOError("This isn't the tabular block.")
 
         block_size = self._read('i')
 
@@ -163,12 +163,12 @@ class VADFile(object):
         product_date = self._read('h')
         product_time = self._read('i')
 
-        self._read('h')      # Product-dependent variable 1 (unused)
-        self._read('h')      # Product-dependent variable 2 (unused)
-        self._read('h')      # Elevation (unused)
-        self._read('h')      # Product-dependent variable 3 (unused)
-        self._read('h' * 16) # Product-dependent thresholds (how do I interpret these?)
-        self._read('h' * 7)  # Product-dependent variables 4-10 (mostly unused ... do I need the max?)
+        self._read('h')   # Product-dependent variable 1 (unused)
+        self._read('h')   # Product-dependent variable 2 (unused)
+        self._read('h')   # Elevation (unused)
+        self._read('h')   # Product-dependent variable 3 (unused)
+        self._read('16h') # Product-dependent thresholds (how do I interpret these?)
+        self._read('7h')  # Product-dependent variables 4-10 (mostly unused ... do I need the max?)
 
         version    = self._read('b')
         spot_blank = self._read('b')
