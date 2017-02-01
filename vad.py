@@ -1,4 +1,5 @@
 
+from __future__ import print_function
 
 import numpy as np
 
@@ -74,7 +75,7 @@ def vad_plotter(radar_id, storm_motion='right-mover', sfc_wind=None, time=None, 
         vad = download_vad(radar_id, time=plot_time)
     else:
         iname = "%s/%s%s_SDUS34_NVW%s_%s" % (local_path, radar_id[0], nwswfos[radar_id], radar_id[1:], plot_time.strftime("%Y%m%d%H%M"))
-        vad = VADFile(open(iname))
+        vad = VADFile(open(iname, 'rb'))
 
     vad.rid = radar_id
 

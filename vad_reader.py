@@ -1,4 +1,5 @@
 
+from __future__ import print_function
 import numpy as np
 
 import struct
@@ -194,7 +195,7 @@ class VADFile(object):
             data = struct.unpack(">%s" % type_string, self._rpg.read(size))
         else:
             size = int(type_string[1:])
-            data = tuple([ self._rpg.read(size).strip(bytes(b"\0")) ])
+            data = tuple([ self._rpg.read(size).strip(b"\0").decode('utf-8') ])
 
         if len(data) == 1:
             return data[0]
