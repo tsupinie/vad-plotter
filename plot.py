@@ -222,6 +222,7 @@ def plot_hodograph(data, parameters, fname=None, web=False, fixed=False, archive
 
     u, v = vec2comp(data['wind_dir'], data['wind_spd'])
 
+    sat_age = 6 * 3600
     if fixed or len(u) == 0:
         ctr_u, ctr_v = 20, 20
         size = 120
@@ -238,6 +239,9 @@ def plot_hodograph(data, parameters, fname=None, web=False, fixed=False, archive
 
     now = datetime.utcnow()
     img_age = now - data['time']
+    age_cstop = min(_total_seconds(img_age) / sat_age, 1) * 0.5
+    age_color = mpl.cm.get_cmap('gist_heat')(age_cstop)[:-1]
+
     age_str = "Image created on %s (%s old)" % (now.strftime("%d %b %Y %H%M UTC"), _fmt_timedelta(img_age))
 
     pylab.figure(figsize=(10, 7.5), dpi=150)
@@ -259,9 +263,11 @@ def plot_hodograph(data, parameters, fname=None, web=False, fixed=False, archive
     pylab.xticks([])
     pylab.yticks([])
 
-    pylab.title(img_title)
     if not archive:
-        pylab.text(0., -0.01, age_str, transform=pylab.gca().transAxes, ha='left', va='top', fontsize=9)
+        pylab.title(img_title, color=age_color)
+        pylab.text(0., -0.01, age_str, transform=pylab.gca().transAxes, ha='left', va='top', fontsize=9, color=age_color)
+    else:
+        pylab.title(img_title)
 
     pylab.savefig(img_file_name)
     pylab.close()
