@@ -151,6 +151,10 @@ def _plot_data(data, parameters):
         ca_u = np.nan
         ca_v = np.nan
 
+    mkr_z = np.arange(16)
+    mkr_u = np.interp(mkr_z, alt, u, left=np.nan, right=np.nan)
+    mkr_v = np.interp(mkr_z, alt, v, left=np.nan, right=np.nan)
+
     for idx in range(len(_seg_hghts) - 1):
         idx_start = seg_idxs[idx]
         idx_end = seg_idxs[idx + 1]
@@ -172,6 +176,11 @@ def _plot_data(data, parameters):
             rad = np.sqrt(2) * rms
             circ = Circle((upt, vpt), rad, color=_seg_colors[idx], alpha=0.05)
             pylab.gca().add_patch(circ)
+
+    pylab.plot(mkr_u, mkr_v, 'ko', ms=10)
+    for um, vm, zm in zip(mkr_u, mkr_v, mkr_z):
+        if not np.isnan(um):
+            pylab.text(um, vm - 0.1, str(zm), va='center', ha='center', color='white', size=6.5, fontweight='bold')
 
     try:
         pylab.plot([storm_u, u[0]], [storm_v, v[0]], 'c-', linewidth=0.75)
