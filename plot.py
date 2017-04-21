@@ -278,7 +278,7 @@ def plot_hodograph(data, parameters, fname=None, web=False, fixed=False, archive
     else:
         pylab.title(img_title)
 
-    pylab.savefig(img_file_name)
+    pylab.savefig(img_file_name, dpi=pylab.gcf().dpi)
     pylab.close()
 
     if web:
