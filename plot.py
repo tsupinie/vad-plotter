@@ -25,8 +25,8 @@ def _fmt_timedelta(td):
     periods = [
             ('dy', 60*60*24),
             ('hr',    60*60),
-            ('min',       60),
-            ('sec',        1)
+            ('min',      60),
+            ('sec',       1)
             ]
 
     strings=[]
@@ -294,6 +294,10 @@ def plot_hodograph(data, parameters, fname=None, web=False, fixed=False, archive
         pylab.text(0., -0.01, age_str, transform=pylab.gca().transAxes, ha='left', va='top', fontsize=9, color=age_color)
     else:
         pylab.title(img_title)
+
+    if web:
+        web_brand = "http://www.autumnsky.us/vad/"
+        pylab.text(1.0, -0.01, web_brand, transform=pylab.gca().transAxes, ha='right', va='top', fontsize=9)
 
     pylab.savefig(img_file_name, dpi=pylab.gcf().dpi)
     pylab.close()
