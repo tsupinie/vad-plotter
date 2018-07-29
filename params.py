@@ -79,7 +79,7 @@ def compute_bunkers(data):
     lstu = mnu6 - (tmp * shrv)
     lstv = mnv6 + (tmp * shru)
 
-    return comp2vec(rstu, rstv), comp2vec(lstu, lstv)
+    return comp2vec(rstu, rstv), comp2vec(lstu, lstv), comp2vec(mnu6, mnv6)
     
 
 def compute_crit_angl(data, storm_motion):
@@ -105,15 +105,18 @@ def compute_parameters(data, storm_motion):
     params = {}
 
     try:
-        params['bunkers_right'], params['bunkers_left'] = compute_bunkers(data)
+        params['bunkers_right'], params['bunkers_left'], params['mean_wind'] = compute_bunkers(data)
     except (IndexError, ValueError):
         params['bunkers_right'] = (np.nan, np.nan)
         params['bunkers_left'] = (np.nan, np.nan)
+        params['mean_wind'] = (np.nan, np.nan)
 
     if storm_motion.lower() in ['blm', 'left-mover']:
         params['storm_motion'] = params['bunkers_left']
     elif storm_motion.lower() in ['brm', 'right-mover']:
         params['storm_motion'] = params['bunkers_right']
+    elif storm_motion.lower() in ['mnw', 'mean-wind']:
+        params['storm_motion'] = params['mean_wind']
     else:
         params['storm_motion'] = tuple(int(v) for v in storm_motion.split('/'))
 

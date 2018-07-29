@@ -113,6 +113,13 @@ def _plot_param_table(parameters, web=False):
     else:
         pylab.text(start_x + 0.26, line_y - 0.001, val, **kwargs)
 
+    line_y -= line_space
+
+    mn_dir, mn_spd = parameters['mean_wind']
+    pylab.text(start_x, line_y, "0-6 km Mean Wind:", fontweight='bold', **kwargs)
+    val = "--" if np.isnan(parameters['mean_wind']).any() else "%03d/%02d kts" % (mn_dir, mn_spd)
+    pylab.text(start_x + 0.26, line_y + 0.001, val, **kwargs)
+
     spacer = Line2D([start_x, start_x + 0.361], [line_y - line_space * 0.48] * 2, color='k', linestyle='-', transform=trans, clip_on=False)
     pylab.gca().add_line(spacer)
     line_y -= 1.5 * line_space
@@ -131,6 +138,7 @@ def _plot_data(data, parameters):
     storm_dir, storm_spd = parameters['storm_motion']
     bl_dir, bl_spd = parameters['bunkers_left']
     br_dir, br_spd = parameters['bunkers_right']
+    mn_dir, mn_spd = parameters['mean_wind']
 
     u, v = vec2comp(data['wind_dir'], data['wind_spd'])
     alt = data['altitude']
@@ -138,6 +146,7 @@ def _plot_data(data, parameters):
     storm_u, storm_v = vec2comp(storm_dir, storm_spd)
     bl_u, bl_v = vec2comp(bl_dir, bl_spd)
     br_u, br_v = vec2comp(br_dir, br_spd)
+    mn_u, mn_v = vec2comp(mn_dir, mn_spd)
 
     seg_idxs = np.searchsorted(alt, _seg_hghts)
     try:
@@ -196,7 +205,15 @@ def _plot_data(data, parameters):
         pylab.plot(br_u, br_v, 'ko', markersize=5, mfc='none')
         pylab.text(br_u + 0.5, br_v - 0.5, "RM", ha='left', va='top', color='k', fontsize=10)
 
-    if not (np.isnan(storm_u) or np.isnan(storm_v)) and storm_u != bl_u and storm_v != bl_v and storm_u != br_u and storm_v != br_v:
+    if not (np.isnan(mn_u) or np.isnan(mn_v)):
+        pylab.plot(mn_u, mn_v, 's', color='#a04000', markersize=5, mfc='none')
+        pylab.text(mn_u + 0.6, mn_v - 0.6, "MEAN", ha='left', va='top', color='#a04000', fontsize=10)
+
+    smv_is_brm = (storm_u == br_u and storm_v == br_v)
+    smv_is_blm = (storm_u == bl_u and storm_v == bl_v)
+    smv_is_mnw = (storm_u == mn_u and storm_v == mn_v)
+
+    if not (np.isnan(storm_u) or np.isnan(storm_v)) and not (smv_is_brm or smv_is_blm or smv_is_mnw):
         pylab.plot(storm_u, storm_v, 'k+', markersize=6)
         pylab.text(storm_u + 0.5, storm_v - 0.5, "SM", ha='left', va='top', color='k', fontsize=10)
 
@@ -248,8 +265,8 @@ def plot_hodograph(data, parameters, fname=None, web=False, fixed=False, archive
 
     now = datetime.utcnow()
     img_age = now - data['time']
-    age_cstop = min(_total_seconds(img_age) / sat_age, 1) * 0.5
-    age_color = mpl.cm.get_cmap('gist_heat')(age_cstop)[:-1]
+    age_cstop = min(_total_seconds(img_age) / sat_age, 1) * 0.4
+    age_color = mpl.cm.get_cmap('hot')(age_cstop)[:-1]
 
     age_str = "Image created on %s (%s old)" % (now.strftime("%d %b %Y %H%M UTC"), _fmt_timedelta(img_age))
 
