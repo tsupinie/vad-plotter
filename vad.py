@@ -14,6 +14,7 @@ import re
 import argparse
 from datetime import datetime, timedelta
 import json
+import glob
 
 """
 vad.py
@@ -74,7 +75,8 @@ def vad_plotter(radar_id, storm_motion='right-mover', sfc_wind=None, time=None, 
     if local_path is None:
         vad = download_vad(radar_id, time=plot_time)
     else:
-        iname = "%s/%s%s_SDUS34_NVW%s_%s" % (local_path, radar_id[0], nwswfos[radar_id], radar_id[1:], plot_time.strftime("%Y%m%d%H%M"))
+        iname_pattern = "%s/%s%s_SDUS??_NVW%s_%s" % (local_path, radar_id[0], nwswfos[radar_id], radar_id[1:], plot_time.strftime("%Y%m%d%H%M"))
+        iname = glob.glob(iname_pattern)[0]
         vad = VADFile(open(iname, 'rb'))
 
     vad.rid = radar_id
