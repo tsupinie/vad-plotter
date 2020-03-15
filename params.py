@@ -127,12 +127,12 @@ def compute_parameters(data, storm_motion):
 
     for hght in [1, 3, 6]:
         try:
-            params["shear_mag_%dkm" % hght] = compute_shear_mag(data, hght)
+            params["shear_mag_%dm" % (hght * 1000)] = compute_shear_mag(data, hght)
         except (IndexError, ValueError):
-            params["shear_mag_%dkm" % hght] = np.nan
+            params["shear_mag_%dm" % (hght * 1000)] = np.nan
 
     for hght in [1, 3]:
-        params["srh_%dkm" % hght] = compute_srh(data, params['storm_motion'], hght)
+        params["srh_%dm" % (hght * 1000)] = compute_srh(data, params['storm_motion'], hght)
 
     return params
 

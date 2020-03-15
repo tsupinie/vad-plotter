@@ -66,23 +66,23 @@ def _plot_param_table(parameters, web=False):
     line_y -= line_space
 
     pylab.text(start_x, line_y, "0-1 km", fontweight='bold', **kwargs)
-    val = "--" if np.isnan(parameters['shear_mag_1km']) else "%d" % int(parameters['shear_mag_1km'])
+    val = "--" if np.isnan(parameters['shear_mag_1000m']) else "%d" % int(parameters['shear_mag_1000m'])
     pylab.text(start_x + 0.095, line_y, val, **kwargs)
-    val = "--" if np.isnan(parameters['srh_1km']) else "%d" % int(parameters['srh_1km'])
+    val = "--" if np.isnan(parameters['srh_1000m']) else "%d" % int(parameters['srh_1000m'])
     pylab.text(start_x + 0.22,  line_y, val, **kwargs)
 
     line_y -= line_space
 
     pylab.text(start_x, line_y, "0-3 km", fontweight='bold', **kwargs)
-    val = "--" if np.isnan(parameters['shear_mag_3km']) else "%d" % int(parameters['shear_mag_3km'])
+    val = "--" if np.isnan(parameters['shear_mag_3000m']) else "%d" % int(parameters['shear_mag_3000m'])
     pylab.text(start_x + 0.095, line_y, val, **kwargs)
-    val = "--" if np.isnan(parameters['srh_3km']) else "%d" % int(parameters['srh_3km'])
+    val = "--" if np.isnan(parameters['srh_3000m']) else "%d" % int(parameters['srh_3000m'])
     pylab.text(start_x + 0.22,  line_y, val, **kwargs)
 
     line_y -= line_space
 
     pylab.text(start_x, line_y, "0-6 km", fontweight='bold', **kwargs)
-    val = "--" if np.isnan(parameters['shear_mag_6km']) else "%d" % int(parameters['shear_mag_6km'])
+    val = "--" if np.isnan(parameters['shear_mag_6000m']) else "%d" % int(parameters['shear_mag_6000m'])
     pylab.text(start_x + 0.095, line_y, val, **kwargs)
 
     spacer = Line2D([start_x, start_x + 0.361], [line_y - line_space * 0.48] * 2, color='k', linestyle='-', transform=trans, clip_on=False)
