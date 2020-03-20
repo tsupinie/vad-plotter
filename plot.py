@@ -161,8 +161,12 @@ def _plot_data(data, parameters):
         ca_v = np.nan
 
     mkr_z = np.arange(16)
-    mkr_u = np.interp(mkr_z, alt, u, left=np.nan, right=np.nan)
-    mkr_v = np.interp(mkr_z, alt, v, left=np.nan, right=np.nan)
+    try:
+        mkr_u = np.interp(mkr_z, alt, u, left=np.nan, right=np.nan)
+        mkr_v = np.interp(mkr_z, alt, v, left=np.nan, right=np.nan)
+    except ValueError:
+        mkr_u = np.nan * mkr_z
+        mkr_v = np.nan * mkr_z
 
     for idx in range(len(_seg_hghts) - 1):
         idx_start = seg_idxs[idx]
