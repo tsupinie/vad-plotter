@@ -153,6 +153,7 @@ _wsr88d_info = {
     'KVAX': {'wfo': 'JAX', 'region': 2},
     'KJGX': {'wfo': 'FFC', 'region': 2},
     'KVNX': {'wfo': 'OUN', 'region': 4},
+    'KVBX': {'wfo': 'LOX', 'region': 6},
 }
 
 def build_has_name(radar_id, scan_time):
@@ -160,4 +161,3 @@ def build_has_name(radar_id, scan_time):
     iname = "%s%s_SDUS3%d_NVW%s_%s" % (radar_id[0], radar_info['wfo'], radar_info['region'], radar_id[1:], 
                                        scan_time.strftime("%Y%m%d%H%M"))
     return iname
-
