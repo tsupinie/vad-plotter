@@ -8,7 +8,7 @@ import sys
 from vad_reader import download_vad, VADFile
 from params import compute_parameters
 from plot import plot_hodograph
-from wsr88d import nwswfos
+from wsr88d import build_has_name
 
 import re
 import argparse
@@ -75,9 +75,8 @@ def vad_plotter(radar_id, storm_motion='right-mover', sfc_wind=None, time=None, 
     if local_path is None:
         vad = download_vad(radar_id, time=plot_time)
     else:
-        iname_pattern = "%s/%s%s_SDUS??_NVW%s_%s" % (local_path, radar_id[0], nwswfos[radar_id], radar_id[1:], plot_time.strftime("%Y%m%d%H%M"))
-        iname = glob.glob(iname_pattern)[0]
-        vad = VADFile(open(iname, 'rb'))
+        iname = build_has_name(radar_id, plot_time)
+        vad = VADFile(open("%s/%s" % (local_path, iname), 'rb'))
 
     vad.rid = radar_id
 
