@@ -5,10 +5,17 @@ import numpy as np
 import struct
 from datetime import datetime, timedelta
 
+from wsr88d import build_has_name
+
 try:
     from urllib.request import urlopen, URLError
 except ImportError:
     from urllib2 import urlopen, URLError
+
+try:
+    from io import BytesIO
+except ImportError:
+    from BytesIO import BytesIO
 
 import re
 
@@ -280,7 +287,7 @@ def find_file_times(rid):
     return list(zip(file_names, file_dts))[::-1]
 
   
-def download_vad(rid, time=None):
+def download_vad(rid, time=None, cache_path=None):
     if time is None:
         url = "%s/SI.%s/sn.last" % (_base_url, rid.lower())
     else:
@@ -296,8 +303,18 @@ def download_vad(rid, time=None):
         url = "%s/SI.%s/%s" % (_base_url, rid.lower(), file_name)
 
     try:
-        vad = VADFile(urlopen(url))
+        frem = urlopen(url)
     except URLError:
         raise ValueError("Could not find radar site '%s'" % rid.upper())
+
+    if cache_path is None:
+        vad = VADFile(frem)
+    else:
+        bio = BytesIO(frem.read())
+        vad = VADFile(bio)
+
+        iname = build_has_name(rid, vad['time'])
+        with open("%s/%s" % (cache_path, iname), 'wb') as floc:
+            floc.write(bio.getvalue())
 
     return vad

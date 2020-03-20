@@ -62,7 +62,8 @@ def parse_time(time_str):
 
     return plot_time
 
-def vad_plotter(radar_id, storm_motion='right-mover', sfc_wind=None, time=None, fname=None, local_path=None, web=False, fixed=False):
+def vad_plotter(radar_id, storm_motion='right-mover', sfc_wind=None, time=None, fname=None, local_path=None, 
+                cache_path=None, web=False, fixed=False):
     plot_time = None
     if time:
         plot_time = parse_time(time)
@@ -73,7 +74,7 @@ def vad_plotter(radar_id, storm_motion='right-mover', sfc_wind=None, time=None, 
         print("Plotting VAD for %s ..." % radar_id)
 
     if local_path is None:
-        vad = download_vad(radar_id, time=plot_time)
+        vad = download_vad(radar_id, time=plot_time, cache_path=cache_path)
     else:
         iname = build_has_name(radar_id, plot_time)
         vad = VADFile(open("%s/%s" % (local_path, iname), 'rb'))
@@ -99,6 +100,7 @@ def main():
     ap.add_argument('-t', '--time', dest='time', help="Time to plot. Takes the form DD/HHMM, where DD is the day, HH is the hour, and MM is the minute.")
     ap.add_argument('-f', '--img-name', dest='img_name', help="Name of the file produced.")
     ap.add_argument('-p', '--local-path', dest='local_path', help="Path to local data. If not given, download from the Internet.")
+    ap.add_argument('-c', '--cache-path', dest='cache_path', help="Path to local cache. Data downloaded from the Internet will be cached here.")
     ap.add_argument('-w', '--web-mode', dest='web', action='store_true')
     ap.add_argument('-x', '--fixed-frame', dest='fixed', action='store_true')
     args = ap.parse_args()
@@ -112,6 +114,7 @@ def main():
             time=args.time,
             fname=args.img_name,
             local_path=args.local_path,
+            cache_path=args.cache_path,
             web=args.web,
             fixed=args.fixed
         )
