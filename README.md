@@ -8,7 +8,8 @@ NumPy and Matplotlib are the only requirements to run this script.
 
 ## Usage
 ```
-python vad.py RADAR_ID [ -m STORM_MOTION ] [ -s SFC_WIND ] [ -t TIME ] [ -f IMG_NAME ] [ -p LOCAL_PATH ]
+python vad.py RADAR_ID [ -m STORM_MOTION ] [ -s SFC_WIND ] [ -t TIME ] [ -f IMG_NAME ] 
+                       [ -p LOCAL_PATH ] [ -c CACHE_PATH ]
 ```
 * `RADAR_ID` is a 4-character radar identifier (e.g. KTLX, KFWS)
 * `STORM_MOTION` is the storm motion vector. It can take one of two form. The first is either `BRM` for the Bunkers right-mover vector or `BLM` for the Bunkers left-mover vector. The second form is `DDD/SS`, where `DDD` is the direction the storm is coming from in degrees, and `SS` is the storm speed in knots. An example might be 240/35 (from the WSW at 35 kts).  If the argument is not specified, the default is to use the Bunkers right-mover vector.
@@ -16,6 +17,7 @@ python vad.py RADAR_ID [ -m STORM_MOTION ] [ -s SFC_WIND ] [ -t TIME ] [ -f IMG_
 * `TIME` is the plot time. It takes the form `[YYYY-mm-]dd/HHMM`, where `YYYY` is the 4-digit year, `mm` is the month, `dd` is the day, `HH` is the hour, and `MM` is the minute. The year and month are optional. The script will plot the most recent VAD as of this time.
 * `IMG_NAME` is the name of the image the script produces. If not given, it defaults to `<RADAR_ID>_vad.png`.
 * `LOCAL_PATH` is the path to a local file from which to load the VWP data (assumed to have been downloaded from [NCDC's NEXRAD archive](https://www.ncdc.noaa.gov/has/HAS.FileAppRouter?datasetname=7000&subqueryby=STATION&applname=&outdest=FILE)). The name of the file should not be given; the script will construct the file name using the other information.
+* `CACHE_PATH` is the path to a local directory in which to cache downloaded files. The downloaded files can be read in directly using the -p option.
 
 An example of the output is given below. See the [interpretation](#interpretation) section for more information.
 
