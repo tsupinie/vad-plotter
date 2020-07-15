@@ -287,9 +287,12 @@ def find_file_times(rid):
     return list(zip(file_names, file_dts))[::-1]
 
   
-def download_vad(rid, time=None, cache_path=None):
+def download_vad(rid, time=None, file_id=None, cache_path=None):
     if time is None:
-        url = "%s/SI.%s/sn.last" % (_base_url, rid.lower())
+        if file_id is None:
+            url = "%s/SI.%s/sn.last" % (_base_url, rid.lower())
+        else:
+            url = "%s/SI.%s/sn.%04d" % (_base_url, rid.lower(), file_id)
     else:
         file_name = ""
         for fn, ft in find_file_times(rid):
