@@ -11,13 +11,13 @@ NumPy and Matplotlib are the only requirements to run this script.
 python vad.py RADAR_ID [ -m STORM_MOTION ] [ -s SFC_WIND ] [ -t TIME ] [ -f IMG_NAME ] 
                        [ -p LOCAL_PATH ] [ -c CACHE_PATH ]
 ```
-* `RADAR_ID` is a 4-character radar identifier (e.g. KTLX, KFWS)
+* `RADAR_ID` is a 4-character radar identifier (e.g. KTLX or KFWS). TDWRs (e.g. TDFW or TORD) also work.
 * `STORM_MOTION` is the storm motion vector. It can take one of two form. The first is either `BRM` for the Bunkers right-mover vector or `BLM` for the Bunkers left-mover vector. The second form is `DDD/SS`, where `DDD` is the direction the storm is coming from in degrees, and `SS` is the storm speed in knots. An example might be 240/35 (from the WSW at 35 kts).  If the argument is not specified, the default is to use the Bunkers right-mover vector.
 * `SFC_WIND` is the surface wind vector. Its form is the same as the `DDD/SS` form of the storm motion vector. A dashed red line will be drawn on the hodograph from the lowest point in the VWP to the surface wind to indicate the approximate wind profile in that layer.
-* `TIME` is the plot time. It takes the form `[YYYY-mm-]dd/HHMM`, where `YYYY` is the 4-digit year, `mm` is the month, `dd` is the day, `HH` is the hour, and `MM` is the minute. The year and month are optional. The script will plot the most recent VAD as of this time.
-* `IMG_NAME` is the name of the image the script produces. If not given, it defaults to `<RADAR_ID>_vad.png`.
-* `LOCAL_PATH` is the path to a local file from which to load the VWP data (assumed to have been downloaded from [NCDC's NEXRAD archive](https://www.ncdc.noaa.gov/has/HAS.FileAppRouter?datasetname=7000&subqueryby=STATION&applname=&outdest=FILE)). The name of the file should not be given; the script will construct the file name using the other information.
-* `CACHE_PATH` is the path to a local directory in which to cache downloaded files. The downloaded files can be read in directly using the -p option.
+* `TIME` is the plot time. It takes the form `[YYYY-mm-]dd/HHMM`, where `YYYY` is the 4-digit year, `mm` is the month, `dd` is the day, `HH` is the hour, and `MM` is the minute. The year and month are optional. The script will plot the most recent VWP as of this time.
+* `IMG_NAME` is the name of the image the script produces. If not given, it defaults to `<RADAR_ID>_vad.png`. If you would like a vector image rather than a raster image, give a name with a .pdf file extension.
+* `LOCAL_PATH` specifies that, instead of downloading VWP data from the Internet, the script should load the VWP data from this path on the local disk. Data are assumed to have been downloaded from [NCDC's NEXRAD archive](https://www.ncdc.noaa.gov/has/HAS.FileAppRouter?datasetname=7000&subqueryby=STATION&applname=&outdest=FILE). The name of the file should not be given; the script will construct the file name using the other information.
+* `CACHE_PATH` is the path to a local directory in which to cache files downloaded from the Internet. The downloaded files can be read in directly using the -p option.
 
 An example of the output is given below. See the [interpretation](#interpretation) section for more information.
 
