@@ -24,7 +24,8 @@ def vad_json(radar_id, vwp_time=None, file_id=None, local_path=None, output='.',
         'data': {var: list(vad[var]) for var in ['wind_dir', 'wind_spd', 'altitude', 'rms_error']},
     }
 
-    out_fname = f'{output}/{radar_id}_{output_dt:%Y%m%d_%H%M}.json'
+#   out_fname = f'{output}/{radar_id}_{output_dt:%Y%m%d_%H%M}.json'
+    out_fname = f'{output}/{radar_id}_{file_id:04d}.json'
     if gzip:
         out_fname = f'{out_fname}.gz'
         with gzip.open(out_fname, 'wb') as fjson:
@@ -46,6 +47,8 @@ def main():
     ap.add_argument('-z', '--gzip', dest='gzip', action='store_true', help="Flag to gzip output")
 
     args = ap.parse_args()
+
+#   import time; time.sleep(20)
 
     try:
         vad_json(args.radar_id, vwp_time=args.time, file_id=args.file_id, local_path=args.local_path, 
